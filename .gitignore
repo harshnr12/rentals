@@ -1,4 +1,72 @@
-node_modules/
-.env
+# ==========================================
+# Editors & IDEs (VS Code, VSCodium, Sublime)
+# ==========================================
+# VS Code & VSCodium workspaces and caches
+.vscode/
+.vscode-oss/
+*.code-workspace
+.history/
+
+# Sublime Text project workspaces and session state
+*.sublime-project
+*.sublime-workspace
+sftp-config.json
+
+# General temporary files
+*.swp
+*~
 .DS_Store
+Thumbs.db
+
+# ==========================================
+# Environment Variables & Secrets (CRITICAL)
+# ==========================================
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+
+# ==========================================
+# Node.js (Backend & React/Vite)
+# ==========================================
+node_modules/
+
+# ==========================================
+# Logs & Debugging
+# ==========================================
 *.log
+logs/
+*.log.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# React + Vite Production Builds (Web)
+# ==========================================
+dist/
+dist-ssr/
+*.local
+
+# ==========================================
+# Android & Gradle (CLI / Terminal Builds)
+# ==========================================
+.gradle/
+build/
+**/build/
+*.apk
+*.aab
+
+# Local Android SDK paths and licenses
+local.properties
+.cxx/
+captures/
+default.size.properties
+
+# Android Testing and Lint artifacts
+lint/intermediates/
+lint/generated/
+lint/outputs/
