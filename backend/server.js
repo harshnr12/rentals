@@ -1,18 +1,12 @@
-import express from 'express';
-import cors from 'cors';
-import pg from 'pg';
 import 'dotenv/config';
+import pg from 'pg';
+
+import app from './app.js';
 
 const { Pool } = pg;
 
-const app = express();
 const port = process.env.PORT || 8000;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// PostgreSQL connection pool
 const pool = new Pool({
   user: process.env.DB_USER,
   host: process.env.DB_HOST,
@@ -21,23 +15,25 @@ const pool = new Pool({
   port: process.env.DB_PORT,
 });
 
-// Root route
-app.get('/', (req, res) => {
-  res.json({ message: '99acres Rentals API is running!' });
-});
-
-// Test route querying PostgreSQL
-app.get('/api/health', async (req, res) => {
+app.get('/api/check', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW() as current_time, current_database() as db_name;');
+    const result = await pool.query(
+      'SELECT NOW() AS current_time, current_database() AS db_name'
+    );
+
+    const { db_name, current_time } = result.rows[0];
+
     res.json({
       status: 'success',
-      database: result.rows[0].db_name,
-      server_time: result.rows[0].current_time
+      database: db_name,
+      server_time: current_time,
     });
   } catch (err) {
     console.error('PostgreSQL query error:', err.message);
-    res.status(500).json({ error: 'Database connection failed', details: err.message });
+
+    res.status(500).json({
+      error: 'Database connection failed',
+    });
   }
 });
 
