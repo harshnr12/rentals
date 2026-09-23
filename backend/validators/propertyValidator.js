@@ -75,8 +75,8 @@ const propertyQuerySchema = Joi.object({
         .valid("family", "single_male", "single_female"),
 
     sort: Joi.string()
-        .valid("asc", "des")
-        .default("des")
+        .valid("asc", "desc")
+    //.default("desc")
 });
 
 

@@ -7,7 +7,7 @@ const validate = (schema, source) => {
         if (error) {
             const message = error.details[0].message;
 
-            return next(new CustomError(message, 400));
+            return next(new CustomError(400, message));
         }
 
         req[source] = value;

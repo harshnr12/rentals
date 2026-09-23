@@ -1,4 +1,4 @@
-import Joi from "joi";
+import Joi from 'joi';
 
 const registerSchema = Joi.object({
     name: Joi.string()
@@ -12,7 +12,11 @@ const registerSchema = Joi.object({
 
     password: Joi.string()
         .min(8)
-        .required()
+        .required(),
+
+    phone: Joi.string()
+        .pattern(/^[0-9]{10}$/)
+        .optional()
 });
 
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 
-import errorHandler from './middleware/errorHandler.js';
+import errorHandler from './middlewares/errorHandler.js';
 import apiRouter from './routes/apiRouter.js';
 
 const app = express();
@@ -18,7 +18,7 @@ app.get('/', (req, res) => {
 // 404 — no route matched
 app.all('*', (req, res) => {
     res.status(404).json({
-        message: `Bad Request.Cannot ${req.method} ${req.originalUrl}`
+        message: `.Cannot ${req.method} ${req.originalUrl}`
     });
 });
 
