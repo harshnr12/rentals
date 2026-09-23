@@ -1,4 +1,18 @@
 # ==========================================
+# Node.js (Backend & React/Vite)
+# ==========================================
+node_modules/
+
+# ==========================================
+# Environment Variables & Secrets (CRITICAL)
+# ==========================================
+.env
+.env.*
+!.env.example
+*.keystore
+*.jks
+
+# ==========================================
 # Editors & IDEs (VS Code, VSCodium, Sublime)
 # ==========================================
 # VS Code & VSCodium workspaces and caches
@@ -17,20 +31,6 @@ sftp-config.json
 *~
 .DS_Store
 Thumbs.db
-
-# ==========================================
-# Environment Variables & Secrets (CRITICAL)
-# ==========================================
-.env
-.env.*
-!.env.example
-*.keystore
-*.jks
-
-# ==========================================
-# Node.js (Backend & React/Vite)
-# ==========================================
-node_modules/
 
 # ==========================================
 # Logs & Debugging
