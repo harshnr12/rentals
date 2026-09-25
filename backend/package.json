@@ -7,7 +7,9 @@
     "scripts": {
         "start": "node server.js",
         "dev": "node --watch server.js",
-        "seed": "node scripts/seed.js"
+        "db_schema": "psql -d rentals -f db/schema.sql",
+        "db_seed": "node scripts/seed.js",
+        "db_reset": "npm run db_schema && npm run db_seed"
     },
     "keywords": [],
     "author": "",
