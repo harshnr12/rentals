@@ -1,15 +1,6 @@
 import express from 'express';
-
-import { protect } from '../middleware/auth.js';
-import {
-    createPropertySchema,
-    propertyQuerySchema,
-    propertyParamsSchema
-} from "../validators/propertyValidator.js";
-
-import validate from "../middlewares/validate.js";
-
-
+import protect from '../middlewares/auth.js';
+import { validateBody, validateQuery } from "../middlewares/validate.js";
 import {
     getProperties,
     getProperty,
@@ -18,37 +9,17 @@ import {
     deleteProperty
 } from '../controllers/propertyController.js';
 
-
 const router = express.Router();
 
+// Public Routes (Anyone can search and view)
+router.get("/", validateQuery, getProperties);
+router.get("/:id", getProperty);
+
+// Protected Routes (Must be logged in as an owner)
 router.use(protect);
 
-
-
-// POST /api/v1/properties
-router.post(
-    "/",
-    validate(createPropertySchema, "body"),
-    createProperty
-);
-
-
-// GET /api/v1/properties
-router.get(
-    "/",
-    validate(propertyQuerySchema, "query"),
-    getProperties
-);
-
-
-// GET /api/v1/properties/:id
-router.get(
-    "/:id",
-    validate(propertyParamsSchema, "params"),
-    getProperty
-);
+router.post("/", validateBody, createProperty);
 router.patch('/:id', updateProperty);
 router.delete('/:id', deleteProperty);
-
 
 export default router;

@@ -2,264 +2,133 @@ import pool from '../db/pool.js';
 import CustomError from '../utils/CustomError.js';
 
 export const getProperties = async (req, res, next) => {
-    const {
-        cityId,
-        locationId,
-        minRent,
-        maxRent,
-        rooms,
-        bathrooms,
-        propertyType,
-        furnishing,
-        tenantPreference,
-        hasHall,
-        hasKitchen,
-        lift,
-        parking,
-        sort
-    } = req.query;
+    const { cityId, locality, minRent, maxRent, bedrooms, propertyType, sort } = req.query;
 
     const conditions = ['1 = 1'];
     const values = [];
 
-    if (cityId) {
-        values.push(cityId);
-        conditions.push(`p.city_id = $${values.length}`);
-    }
+    if (cityId) { values.push(cityId); conditions.push(`p.city_id = $${values.length}`); }
+    if (locality) { values.push(`%${locality}%`); conditions.push(`p.locality ILIKE $${values.length}`); }
+    if (minRent) { values.push(minRent); conditions.push(`p.rent >= $${values.length}`); }
+    if (maxRent) { values.push(maxRent); conditions.push(`p.rent <= $${values.length}`); }
+    if (bedrooms) { values.push(bedrooms); conditions.push(`p.bedrooms = $${values.length}`); }
+    if (propertyType) { values.push(propertyType); conditions.push(`p.property_type = $${values.length}`); }
 
-    if (locationId) {
-        values.push(locationId);
-        conditions.push(`p.location_id = $${values.length}`);
-    }
+    let orderBy = 'ORDER BY p.rent ASC';
+    if (sort === 'rent_desc') orderBy = 'ORDER BY p.rent DESC';
+    if (sort === 'newest') orderBy = 'ORDER BY p.created_at DESC';
 
-    if (minRent !== undefined) {
-        values.push(minRent);
-        conditions.push(`p.rent >= $${values.length}`);
-    }
-
-    if (maxRent !== undefined) {
-        values.push(maxRent);
-        conditions.push(`p.rent <= $${values.length}`);
-    }
-
-    if (rooms !== undefined) {
-        values.push(rooms);
-        conditions.push(`p.rooms = $${values.length}`);
-    }
-
-    if (bathrooms !== undefined) {
-        values.push(bathrooms);
-        conditions.push(`p.bathrooms = $${values.length}`);
-    }
-
-    if (propertyType) {
-        const types = Array.isArray(propertyType) ? propertyType : [propertyType];
-        values.push(types);
-        conditions.push(`p.property_type = ANY($${values.length}::text[])`);
-    }
-
-    if (furnishing) {
-        const furnishingList = Array.isArray(furnishing) ? furnishing : [furnishing];
-        values.push(furnishingList);
-        conditions.push(`p.furnishing = ANY($${values.length}::text[])`);
-    }
-
-    // Tenant Preference Asymmetric Search
-    if (tenantPreference && tenantPreference !== 'any') {
-        values.push([tenantPreference, 'any']);
-        conditions.push(`p.tenant_preference = ANY($${values.length}::text[])`);
-    }
-
-    // Strict Opt-in Amenities (Only applied when explicitly checked true)
-    if (hasHall === true) {
-        conditions.push('p.has_hall = true');
-    }
-
-    if (hasKitchen === true) {
-        conditions.push('p.has_kitchen = true');
-    }
-
-    if (lift === true) {
-        conditions.push('p.lift = true');
-    }
-
-    if (parking === true) {
-        conditions.push('p.parking = true');
-    }
-
-    // Sorting Clause
-    let orderByClause = 'ORDER BY p.rent ASC';
-    if (sort === 'rent_desc') {
-        orderByClause = 'ORDER BY p.rent DESC';
-    } else if (sort === 'newest') {
-        orderByClause = 'ORDER BY p.created_at DESC';
-    }
-
-    const queryText = `
-        SELECT 
-            p.*,
-            c.name AS city_name,
-            l.name AS location_name,
-            COALESCE(
-                (SELECT pp.image FROM property_photos pp WHERE pp.property_id = p.id LIMIT 1),
-                NULL
-            ) AS cover_photo
+    const query = `
+        SELECT p.*, c.name AS city_name 
         FROM properties p
         JOIN cities c ON p.city_id = c.id
-        JOIN locations l ON p.location_id = l.id
         WHERE ${conditions.join(' AND ')}
-        ${orderByClause}
-        LIMIT 80;
+        ${orderBy} LIMIT 80;
     `;
-
-    const { rows } = await pool.query(queryText, values);
-
-    res.status(200).json({
-        count: rows.length,
-        properties: rows
-    });
+    const { rows } = await pool.query(query, values);
+    res.status(200).json({ count: rows.length, properties: rows });
 };
 
 export const getProperty = async (req, res, next) => {
-    const { id } = req.params;
-
-    const queryText = `
-        SELECT 
-            p.*,
-            c.name AS city_name,
-            l.name AS location_name,
-            up.name AS owner_name,
-            up.phone AS owner_phone,
-            COALESCE(
-                ARRAY_AGG(pp.image) FILTER (WHERE pp.image IS NOT NULL),
-                '{}'
-            ) AS photos
+    const { rows } = await pool.query(`
+        SELECT p.*, c.name AS city_name, u.name AS owner_name, u.phone AS owner_phone
         FROM properties p
         JOIN cities c ON p.city_id = c.id
-        JOIN locations l ON p.location_id = l.id
-        LEFT JOIN user_profiles up ON p.owner_id = up.user_id
-        LEFT JOIN property_photos pp ON p.id = pp.property_id
+        JOIN users u ON p.owner_id = u.id
         WHERE p.id = $1
-        GROUP BY p.id, c.name, l.name, up.name, up.phone;
-    `;
-
-    const { rows } = await pool.query(queryText, [id]);
+    `, [req.params.id]);
 
     if (rows.length === 0) {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    res.status(200).json({
-        property: rows[0]
-    });
+    res.status(200).json({ property: rows[0] });
 };
 
 export const createProperty = async (req, res, next) => {
-    const client = await pool.connect();
+    const ownerId = req.user.id;
+    const {
+        cityId, title, locality, rent, deposit, carpetAreaSqft, bedrooms,
+        bathrooms, floorNo, furnishing, propertyType, hasParking, hasLift, photos
+    } = req.body;
 
-    try {
-        const ownerId = req.user.id;
-        let {
-            cityId,
-            locationId,
-            description,
-            rent,
-            maintenance,
-            rooms,
-            bathrooms,
-            hasHall,
-            hasKitchen,
-            propertyType,
-            tenantPreference,
-            furnishing,
-            floor,
-            totalFloors,
-            lift,
-            parking,
-            photos
-        } = req.body;
+    const { rows } = await pool.query(`
+        INSERT INTO properties (
+            owner_id, city_id, title, locality, rent, deposit, carpet_area_sqft, 
+            bedrooms, bathrooms, floor_no, furnishing, property_type, has_parking, has_lift, photos
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        RETURNING *;
+    `, [
+        ownerId, cityId, title, locality, rent, deposit, carpetAreaSqft,
+        bedrooms, bathrooms, floorNo, furnishing, propertyType, hasParking, hasLift, photos || []
+    ]);
 
-        await client.query('BEGIN');
+    res.status(201).json({ property: rows[0] });
+};
 
-        // Auto-generate description if not provided
-        if (!description || description.trim() === '') {
-            const locResult = await client.query(
-                `SELECT l.name AS location_name, c.name AS city_name
-                 FROM locations l
-                 JOIN cities c ON l.city_id = c.id
-                 WHERE l.id = $1`,
-                [locationId]
-            );
+export const updateProperty = async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.id;
 
-            if (locResult.rows.length > 0) {
-                const { location_name, city_name } = locResult.rows[0];
-                description = `${rooms} BHK ${propertyType} available for rent in ${location_name}, ${city_name}.`;
-            } else {
-                description = `${rooms} BHK ${propertyType} available for rent.`;
-            }
-        }
+    // 1. Fetch existing property (Verifies ownership AND gets current data)
+    const { rows } = await pool.query('SELECT * FROM properties WHERE id = $1', [id]);
+    const existing = rows[0];
 
-        const propertyInsertQuery = `
-            INSERT INTO properties (
-                owner_id, city_id, location_id, description, rent, maintenance,
-                rooms, bathrooms, has_hall, has_kitchen, property_type, tenant_preference,
-                furnishing, floor, total_floors, lift, parking
-            ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
-            ) RETURNING *;
-        `;
-
-        const propertyValues = [
-            ownerId,
-            cityId,
-            locationId,
-            description,
-            rent,
-            maintenance,
-            rooms,
-            bathrooms,
-            hasHall,
-            hasKitchen,
-            propertyType,
-            tenantPreference,
-            furnishing,
-            floor,
-            totalFloors,
-            lift,
-            parking
-        ];
-
-        const { rows: propertyRows } = await client.query(propertyInsertQuery, propertyValues);
-        const createdProperty = propertyRows[0];
-
-        let insertedPhotos = [];
-        if (photos && photos.length > 0) {
-            const photoInsertQuery = `
-                INSERT INTO property_photos (property_id, image)
-                SELECT $1, unnest($2::text[])
-                RETURNING image;
-            `;
-            const { rows: photoRows } = await client.query(photoInsertQuery, [
-                createdProperty.id,
-                photos
-            ]);
-            insertedPhotos = photoRows.map(r => r.image);
-        }
-
-        await client.query('COMMIT');
-
-        res.status(201).json({
-            property: {
-                ...createdProperty,
-                photos: insertedPhotos
-            }
-        });
-
-    } catch (error) {
-        await client.query('ROLLBACK');
-        next(error);
-
-    } finally {
-        client.release();
+    if (!existing) {
+        return next(new CustomError(404, 'Property not found'));
     }
+    if (existing.owner_id !== userId) {
+        return next(new CustomError(403, 'You can only update your own properties'));
+    }
+
+    // 2. JavaScript Merge: Use incoming req.body value, OR fallback to existing DB value
+    const cityId = req.body.cityId ?? existing.city_id;
+    const title = req.body.title ?? existing.title;
+    const locality = req.body.locality ?? existing.locality;
+    const rent = req.body.rent ?? existing.rent;
+    const deposit = req.body.deposit ?? existing.deposit;
+    const carpetAreaSqft = req.body.carpetAreaSqft ?? existing.carpet_area_sqft;
+    const bedrooms = req.body.bedrooms ?? existing.bedrooms;
+    const bathrooms = req.body.bathrooms ?? existing.bathrooms;
+    const floorNo = req.body.floorNo ?? existing.floor_no;
+    const furnishing = req.body.furnishing ?? existing.furnishing;
+    const propertyType = req.body.propertyType ?? existing.property_type;
+    const hasParking = req.body.hasParking ?? existing.has_parking;
+    const hasLift = req.body.hasLift ?? existing.hasLift;
+    const photos = req.body.photos ?? existing.photos;
+
+    // 3. Clean, static SQL update (Looks exactly like createProperty!)
+    const updateResult = await pool.query(`
+        UPDATE properties SET
+            city_id = $1, title = $2, locality = $3, rent = $4, deposit = $5, 
+            carpet_area_sqft = $6, bedrooms = $7, bathrooms = $8, floor_no = $9, 
+            furnishing = $10, property_type = $11, has_parking = $12, has_lift = $13, photos = $14
+        WHERE id = $15
+        RETURNING *;
+    `, [
+        cityId, title, locality, rent, deposit, carpetAreaSqft, bedrooms,
+        bathrooms, floorNo, furnishing, propertyType, hasParking, hasLift, photos, id
+    ]);
+
+    res.status(200).json({ property: updateResult.rows[0] });
+};
+
+export const deleteProperty = async (req, res, next) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // 1. Verify existence and ownership
+    const propCheck = await pool.query('SELECT owner_id FROM properties WHERE id = $1', [id]);
+
+    if (propCheck.rows.length === 0) {
+        return next(new CustomError(404, 'Property not found'));
+    }
+    if (propCheck.rows[0].owner_id !== userId) {
+        return next(new CustomError(403, 'You can only delete your own properties'));
+    }
+
+    // 2. Delete the property
+    await pool.query('DELETE FROM properties WHERE id = $1', [id]);
+
+    res.status(200).json({ message: 'Property deleted successfully' });
 };
