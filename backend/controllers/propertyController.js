@@ -1,24 +1,34 @@
 import pool from '../db/pool.js';
 import CustomError from '../utils/CustomError.js';
-
+import deletePhotoFiles from '../utils/fileUtils.js';
 
 /**
-*GET /properties
-    → property listings + city name
-    → no owner contact info
+ * GET /properties
+ *     → property listings + city name
+ *     → no owner contact info
+ *
+ * GET /properties/:id
+ *     → property details + city name
+ *     → no owner name/phone
+ *
+ * GET /properties/:id/contact
+ *     → LOGIN REQUIRED
+ *     → owner name + phone
+ *     → increments contact_views_count
+ */
 
-*GET /properties/:id
-    → property details + city name
-    → no owner name/phone
-
-*GET /properties/:id/contact
-    → LOGIN REQUIRED
-    → owner name + phone
-    → increments contact_views_count
-*/
 
 export const getProperties = async (req, res, next) => {
-    const { cityId, locality, minRent, maxRent, bedrooms, propertyType, sort } = req.query;
+
+    const {
+        cityId,
+        locality,
+        minRent,
+        maxRent,
+        bedrooms,
+        propertyType,
+        sort
+    } = req.query;
 
     const conditions = ['1 = 1'];
     const values = [];
@@ -55,12 +65,22 @@ export const getProperties = async (req, res, next) => {
 
     let orderBy = 'ORDER BY p.created_at DESC';
 
-    if (sort === 'rent_asc') orderBy = 'ORDER BY p.rent ASC';
-    if (sort === 'rent_desc') orderBy = 'ORDER BY p.rent DESC';
-    if (sort === 'newest') orderBy = 'ORDER BY p.created_at DESC';
+    if (sort === 'rent_asc') {
+        orderBy = 'ORDER BY p.rent ASC';
+    }
+
+    if (sort === 'rent_desc') {
+        orderBy = 'ORDER BY p.rent DESC';
+    }
+
+    if (sort === 'newest') {
+        orderBy = 'ORDER BY p.created_at DESC';
+    }
 
     const query = `
-        SELECT p.*, c.name AS city_name 
+        SELECT
+            p.*,
+            c.name AS city_name
         FROM properties p
         JOIN cities c ON p.city_id = c.id
         WHERE ${conditions.join(' AND ')}
@@ -76,9 +96,11 @@ export const getProperties = async (req, res, next) => {
     });
 };
 
+
 export const getProperty = async (req, res, next) => {
+
     const { rows } = await pool.query(`
-        SELECT 
+        SELECT
             p.*,
             c.name AS city_name
         FROM properties p
@@ -87,7 +109,9 @@ export const getProperty = async (req, res, next) => {
     `, [req.params.id]);
 
     if (rows.length === 0) {
-        return next(new CustomError(404, 'Property not found'));
+        return next(
+            new CustomError(404, 'Property not found')
+        );
     }
 
     res.status(200).json({
@@ -96,34 +120,13 @@ export const getProperty = async (req, res, next) => {
 };
 
 
-export const getPropertyMetadata = async (req, res, next) => {
-    const { rows: cities } = await pool.query(`
-        SELECT id, name
-        FROM cities
-        ORDER BY name ASC
-    `);
-
-    res.status(200).json({
-        cities,
-        propertyTypes: [
-            'apartment',
-            'villa'
-        ],
-        furnishingTypes: [
-            'unfurnished',
-            'semi_furnished',
-            'fully_furnished'
-        ]
-    });
-
-};
-
 export const getPropertyContact = async (req, res, next) => {
+
     const { id } = req.params;
     const userId = req.user.id;
 
     const { rows } = await pool.query(`
-        SELECT 
+        SELECT
             u.name AS owner_name,
             u.phone AS owner_phone
         FROM properties p
@@ -146,26 +149,9 @@ export const getPropertyContact = async (req, res, next) => {
     });
 };
 
-export const getMyProperties = async (req, res, next) => {
-    const ownerId = req.user.id;
-
-    const { rows } = await pool.query(`
-        SELECT
-            p.*,
-            c.name AS city_name
-        FROM properties p
-        JOIN cities c ON p.city_id = c.id
-        WHERE p.owner_id = $1
-        ORDER BY p.created_at DESC
-    `, [ownerId]);
-
-    res.status(200).json({
-        count: rows.length,
-        properties: rows
-    });
-};
 
 export const createProperty = async (req, res, next) => {
+
     const ownerId = req.user.id;
 
     const {
@@ -184,10 +170,11 @@ export const createProperty = async (req, res, next) => {
         photos
     } = req.body;
 
-    const propertyTypeTitle =
-        propertyType === 'apartment' ? 'Apartment' : 'Villa';
 
-    const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
+    // Generate title from the final property values
+    const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
+    const title =
+        `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
 
     const { rows } = await pool.query(`
         INSERT INTO properties (
@@ -235,10 +222,13 @@ export const createProperty = async (req, res, next) => {
     });
 };
 
+
 export const updateProperty = async (req, res, next) => {
+
     const { id } = req.params;
     const userId = req.user.id;
 
+    // Find existing property
     const { rows } = await pool.query(
         'SELECT * FROM properties WHERE id = $1',
         [id]
@@ -250,30 +240,54 @@ export const updateProperty = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
+    // Only the owner can update the property
     if (existing.owner_id !== userId) {
-        return next(new CustomError(
-            403,
-            'You can only update your own properties'
-        ));
+        return next(new CustomError(403, 'You can only update your own properties'));
     }
 
     const cityId = req.body.cityId ?? existing.city_id;
-    const title = req.body.title ?? existing.title;
+
     const locality = req.body.locality ?? existing.locality;
+
     const rent = req.body.rent ?? existing.rent;
+
     const deposit = req.body.deposit ?? existing.deposit;
+
     const carpetAreaSqft = req.body.carpetAreaSqft ?? existing.carpet_area_sqft;
+
     const bedrooms = req.body.bedrooms ?? existing.bedrooms;
+
     const bathrooms = req.body.bathrooms ?? existing.bathrooms;
+
     const floorNo = req.body.floorNo ?? existing.floor_no;
+
     const furnishing = req.body.furnishing ?? existing.furnishing;
+
     const propertyType = req.body.propertyType ?? existing.property_type;
+
     const hasParking = req.body.hasParking ?? existing.has_parking;
+
     const hasLift = req.body.hasLift ?? existing.has_lift;
+
     const photos = req.body.photos ?? existing.photos;
 
+
+    // Generate title from the final property values
+    const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
+    const title =
+        `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
+
+
+    // Find photos that were removed from the property
+    const removedPhotos = existing.photos.filter(
+        photo => !photos.includes(photo)
+    );
+
+
+    // Update database
     const updateResult = await pool.query(`
-        UPDATE properties SET
+        UPDATE properties
+        SET
             city_id = $1,
             title = $2,
             locality = $3,
@@ -308,35 +322,51 @@ export const updateProperty = async (req, res, next) => {
         id
     ]);
 
+
+    // Delete physical files no longer used by the property
+    await deletePhotoFiles(removedPhotos);
+
+
     res.status(200).json({
         property: updateResult.rows[0]
     });
 };
 
+
 export const deleteProperty = async (req, res, next) => {
+
     const { id } = req.params;
     const userId = req.user.id;
 
-    const propCheck = await pool.query(
-        'SELECT owner_id FROM properties WHERE id = $1',
+    // Get owner and photos before deleting the row
+    const { rows } = await pool.query(
+        'SELECT owner_id, photos FROM properties WHERE id = $1',
         [id]
     );
 
-    if (propCheck.rows.length === 0) {
+    const property = rows[0];
+
+    if (!property) {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    if (propCheck.rows[0].owner_id !== userId) {
+    // Only the owner can delete the property
+    if (property.owner_id !== userId) {
         return next(new CustomError(
             403,
             'You can only delete your own properties'
-        ));
+        )
+        );
     }
 
+    // Delete property from database
     await pool.query(
         'DELETE FROM properties WHERE id = $1',
         [id]
     );
+
+    // Delete all physical photos belonging to the property
+    await deletePhotoFiles(property.photos);
 
     res.status(200).json({
         message: 'Property deleted successfully'

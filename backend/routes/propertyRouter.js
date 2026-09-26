@@ -9,23 +9,19 @@ import {
     getProperties,
     getProperty,
     getPropertyContact,
-    getMyProperties,
-    getPropertyMetadata,
     createProperty,
     updateProperty,
     deleteProperty,
 
 } from '../controllers/propertyController.js';
-
 const router = express.Router();
 
-router.get("/metadata", getPropertyMetadata);
-router.get("/my-properties", protect, getMyProperties);
-
+// Validate every :id parameter in this router
+router.param('id', validateParams);
 
 // Public Routes
 router.get("/", validateQuery, getProperties);
-router.get("/:id", validateParams, getProperty);
+router.get("/:id", getProperty);
 
 // Protected Routes after this Point
 router.use(protect);
@@ -33,9 +29,13 @@ router.use(protect);
 // Contact route — any logged-in user can view owner contact
 router.get("/:id/contact", getPropertyContact);
 
-// Owner-only Routes
-router.post("/", validateBody, createProperty);
-router.patch('/:id', updateProperty);
+// Delete does not need body validation
 router.delete('/:id', deleteProperty);
+
+// Body validation for property creation/update
+router.use(validateBody);
+
+router.post("/", createProperty);
+router.patch('/:id', updateProperty);
 
 export default router;

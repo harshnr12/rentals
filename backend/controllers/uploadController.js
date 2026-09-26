@@ -1,12 +1,15 @@
-export const uploadImage = (req, res, next) => {
-    if (!req.file) {
+export const uploadImages = (req, res, next) => {
+    if (!req.files || req.files.length === 0) {
         return res.status(400).json({
-            message: 'No file uploaded or file rejected by validation'
+            message: 'No files uploaded or files rejected by validation'
         });
     }
 
-    // Rely solely on the 201 status code and return only the necessary data
+    // Map over the array of files to create an array of paths
+    const photoUrls = req.files.map(file => `/images/${file.filename}`);
+
     return res.status(201).json({
-        photoUrl: `/images/${req.file.filename}`
+        message: 'Images uploaded successfully',
+        photoUrls // Returns: ["/images/user_1_123.jpg", "/images/user_1_124.jpg"]
     });
 };

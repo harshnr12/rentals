@@ -15,10 +15,15 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    // 1. Define the exact same allowed types as your configController
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+
+    // 2. Strictly check against the array
+    if (allowedTypes.includes(file.mimetype)) {
         cb(null, true);
     } else {
-        cb(new Error('Invalid file type. Only image files are allowed.'), false);
+        // 3. Reject anything else (like SVGs or GIFs)
+        cb(new Error('Invalid file type. Only JPG, PNG, and WEBP are allowed.'), false);
     }
 };
 
