@@ -5,15 +5,15 @@ import deletePhotoFiles from '../utils/fileUtils.js';
 /**
  * GET /properties
  *     → property listings + city name
- *     → no owner contact info
+ *     → no owner information (name, phone, ID)
  *
  * GET /properties/:id
  *     → property details + city name
- *     → no owner name/phone
+ *     → no owner information (name, phone, ID)
  *
  * GET /properties/:id/contact
  *     → LOGIN REQUIRED
- *     → owner name + phone
+ *     → owner name + phone only (no owner ID)
  *     → increments contact_views_count
  */
 
