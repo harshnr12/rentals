@@ -2,7 +2,6 @@ import Joi from "joi";
 
 export const createPropertySchema = Joi.object({
     cityId: Joi.number().integer().positive().required(),
-    title: Joi.string().trim().min(5).required(),
     locality: Joi.string().trim().required(),
     rent: Joi.number().integer().positive().required(),
     deposit: Joi.number().integer().min(0).required(),

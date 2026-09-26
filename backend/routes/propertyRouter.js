@@ -9,12 +9,19 @@ import {
     getProperties,
     getProperty,
     getPropertyContact,
+    getMyProperties,
+    getPropertyMetadata,
     createProperty,
     updateProperty,
-    deleteProperty
+    deleteProperty,
+
 } from '../controllers/propertyController.js';
 
 const router = express.Router();
+
+router.get("/metadata", getPropertyMetadata);
+router.get("/my-properties", protect, getMyProperties);
+
 
 // Public Routes
 router.get("/", validateQuery, getProperties);

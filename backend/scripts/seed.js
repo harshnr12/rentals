@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import bcrypt from 'bcrypt';
-import pool from './pool.js';
+import pool from '../db/pool.js';
 
 // ============================================================================
 // 1. REGIONAL CITIES, BENCHMARK BASE RENTS & LOCALITIES

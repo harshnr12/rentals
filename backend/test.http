@@ -4,7 +4,7 @@
 @baseUrl = http://localhost:8000/api/v1
 @host = http://localhost:8000
 # Paste the token from Login response here:
-@token = jwt_token_after_login
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyNiIsImlhdCI6MTc5MDM5OTE5NCwiZXhwIjoxNzkxMDAzOTk0fQ.2psuFoRMh_vjwZ6W8ioUV6BDUAiZHUrJCTflK7Pzy-M
 
 ### ==========================================
 ### 1. AUTHENTICATION
@@ -60,8 +60,63 @@ Content-Type: image/jpeg
 ### 3. PROPERTIES
 ### ==========================================
 
-### Create a new Property
-# Use the photoUrl returned from the upload request above
+### Get all Properties (Public)
+GET {{baseUrl}}/properties
+
+### Get all Properties with query string (Public)
+GET {{baseUrl}}/properties?cityId=1&bedrooms=2&maxRent=20000&sort=rent_asc
+
+### Get a single Property (Public)
+GET {{baseUrl}}/properties/1
+
+### Get property metadata (Public)
+GET {{baseUrl}}/properties/metadata
+
+### Get property owner contact
+GET {{baseUrl}}/properties/1/contact
+Authorization: Bearer {{token}}
+
+
+### Get my properties
+GET {{baseUrl}}/properties/my-properties
+Authorization: Bearer {{token}}
+
+
+### Create property
+POST {{baseUrl}}/properties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+# {
+#     "cityId": 1,
+#     "locality": "Dwarka",
+#     "rent": 25000,
+#     "deposit": 50000,
+#     "carpetAreaSqft": 900,
+#     "bedrooms": 2,
+#     "bathrooms": 2,
+#     "floorNo": 3,
+#     "furnishing": "semi_furnished",
+#     "propertyType": "apartment",
+#     "hasParking": true,
+#     "hasLift": true
+# }
+{
+    "cityId": 8,
+    "locality": "Dwarka",
+    "rent": 25000,
+    "deposit": 50000,
+    "carpetAreaSqft": 900,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "floorNo": 3,
+    "furnishing": "semi_furnished",
+    "propertyType": "apartment",
+    "hasParking": true,
+    "hasLift": true
+}
+
+### Create a new Property -- Bad Request
 POST {{baseUrl}}/properties
 Authorization: Bearer {{token}}
 Content-Type: application/json
@@ -70,20 +125,9 @@ Content-Type: application/json
     "title": "Beautiful 2 BHK in Indiranagar",
     "rent": 45000,
     "photos": [
-        "/images/user_1_1711000000.jpg" 
+        "/images/3_2.jpg" 
     ]
 }
-
-### Get all Properties (Public)
-GET {{baseUrl}}/properties
-
-### Get all Properties with query string (Public)
-GET {{baseUrl}}/properties?cityId=1&bedrooms=2&maxRent=20000&sort=rent_asc
-
-### Get a single Property (Public)
-# Change the ID '1' to a real property ID from database
-GET {{baseUrl}}/properties/1
-
 
 
 ### ==========================================

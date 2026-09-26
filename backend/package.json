@@ -7,9 +7,10 @@
     "scripts": {
         "start": "node server.js",
         "dev": "node --watch server.js",
-        "db_schema": "psql -d rentals -f db/schema.sql",
+        "db_schema": "psql -U harsh -d rentals -f db/schema.sql",
         "db_seed": "node scripts/seed.js",
-        "db_reset": "npm run db_schema && npm run db_seed"
+        "db_reset": "npm run db_schema && npm run db_seed",
+        "db_test": "node scripts/testDb.js"
     },
     "keywords": [],
     "author": "",

@@ -95,6 +95,29 @@ export const getProperty = async (req, res, next) => {
     });
 };
 
+
+export const getPropertyMetadata = async (req, res, next) => {
+    const { rows: cities } = await pool.query(`
+        SELECT id, name
+        FROM cities
+        ORDER BY name ASC
+    `);
+
+    res.status(200).json({
+        cities,
+        propertyTypes: [
+            'apartment',
+            'villa'
+        ],
+        furnishingTypes: [
+            'unfurnished',
+            'semi_furnished',
+            'fully_furnished'
+        ]
+    });
+
+};
+
 export const getPropertyContact = async (req, res, next) => {
     const { id } = req.params;
     const userId = req.user.id;
@@ -123,12 +146,30 @@ export const getPropertyContact = async (req, res, next) => {
     });
 };
 
+export const getMyProperties = async (req, res, next) => {
+    const ownerId = req.user.id;
+
+    const { rows } = await pool.query(`
+        SELECT
+            p.*,
+            c.name AS city_name
+        FROM properties p
+        JOIN cities c ON p.city_id = c.id
+        WHERE p.owner_id = $1
+        ORDER BY p.created_at DESC
+    `, [ownerId]);
+
+    res.status(200).json({
+        count: rows.length,
+        properties: rows
+    });
+};
+
 export const createProperty = async (req, res, next) => {
     const ownerId = req.user.id;
 
     const {
         cityId,
-        title,
         locality,
         rent,
         deposit,
@@ -142,6 +183,11 @@ export const createProperty = async (req, res, next) => {
         hasLift,
         photos
     } = req.body;
+
+    const propertyTypeTitle =
+        propertyType === 'apartment' ? 'Apartment' : 'Villa';
+
+    const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
 
     const { rows } = await pool.query(`
         INSERT INTO properties (

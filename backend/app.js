@@ -23,7 +23,7 @@ app.get('/', (req, res) => {
 });
 
 // 404 — catch unknown routes
-app.all('*', (req, res) => {
+app.use((req, res) => {
     res.status(404).json({
         message: `Cannot ${req.method} ${req.originalUrl}`
     });
