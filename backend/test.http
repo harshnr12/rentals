@@ -1,16 +1,29 @@
+### ==========================================
+### ENVIRONMENT VARIABLES
+### ==========================================
+@baseUrl = http://localhost:8000/api/v1
+@host = http://localhost:8000
+# Paste the token from Login response here:
+@token = jwt_token_after_login
+
+### ==========================================
+### 1. AUTHENTICATION
+### ==========================================
+
 ### Signup
-POST http://localhost:8000/api/v1/auth/signup
+POST {{baseUrl}}/auth/signup
 Content-Type: application/json
 
 {
-    "name": "Harsh",
+    "name": "Harsh Test",
     "email": "harsh@example.com",
     "password": "password123",
     "phone": "9876543210"
+
 }
 
-### Login
-POST http://localhost:8000/api/v1/auth/login
+### Login (Copy the token from this response to the @token variable above)
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
@@ -19,10 +32,83 @@ Content-Type: application/json
 }
 
 ### Wrong password
-POST http://localhost:8000/api/v1/auth/login
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
     "email": "harsh@example.com",
     "password": "wrongpassword"
 }
+
+
+### ==========================================
+### 2. FILE UPLOAD (MULTER)
+### ==========================================
+
+POST {{baseUrl}}/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photo"; filename="demo-upload.jpg"
+Content-Type: image/jpeg
+
+< ./public/images/1_1.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+### ==========================================
+### 3. PROPERTIES
+### ==========================================
+
+### Create a new Property
+# Use the photoUrl returned from the upload request above
+POST {{baseUrl}}/properties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "title": "Beautiful 2 BHK in Indiranagar",
+    "rent": 45000,
+    "photos": [
+        "/images/user_1_1711000000.jpg" 
+    ]
+}
+
+### Get all Properties (Public)
+GET {{baseUrl}}/properties
+
+### Get a single Property (Public)
+# Change the ID '1' to a real property ID from database
+GET {{baseUrl}}/properties/1
+
+
+### ==========================================
+### 4. FAVORITES
+### ==========================================
+
+### Add Property to Favorites
+POST {{baseUrl}}/favorites
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "propertyId": 1
+}
+
+### Get User's Favorite Properties
+GET {{baseUrl}}/favorites
+Authorization: Bearer {{token}}
+
+### Remove Property from Favorites
+# Change '1' to the ID of the favorite record
+DELETE {{baseUrl}}/favorites/1
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### 5. STATIC ASSET SERVING
+### ==========================================
+
+### Test if express.static is serving images correctly
+# Replace the filename with an actual image name currently in public/images folder
+GET {{host}}/images/user_1_1711000000.jpg
