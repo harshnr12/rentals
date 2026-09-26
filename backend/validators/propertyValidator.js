@@ -24,5 +24,9 @@ export const propertyQuerySchema = Joi.object({
     maxRent: Joi.number().integer().min(0),
     bedrooms: Joi.number().integer().min(1),
     propertyType: Joi.string().valid("apartment", "villa"),
-    sort: Joi.string().valid("rent_asc", "rent_desc", "newest").default("rent_asc")
+    sort: Joi.string().valid("rent_asc", "rent_desc", "newest").default("newest")
+});
+
+export const propertyIdSchema = Joi.object({
+    id: Joi.number().integer().positive().required()
 });

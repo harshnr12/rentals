@@ -77,9 +77,13 @@ Content-Type: application/json
 ### Get all Properties (Public)
 GET {{baseUrl}}/properties
 
+### Get all Properties with query string (Public)
+GET {{baseUrl}}/properties?cityId=1&bedrooms=2&maxRent=20000&sort=rent_asc
+
 ### Get a single Property (Public)
 # Change the ID '1' to a real property ID from database
 GET {{baseUrl}}/properties/1
+
 
 
 ### ==========================================

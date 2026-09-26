@@ -1,6 +1,10 @@
 import CustomError from "../utils/CustomError.js";
 import { registerSchema, loginSchema } from "../validators/authValidator.js";
-import { createPropertySchema, propertyQuerySchema } from "../validators/propertyValidator.js";
+import {
+    createPropertySchema,
+    propertyQuerySchema,
+    propertyIdSchema
+} from "../validators/propertyValidator.js";
 
 export const validateBody = (req, res, next) => {
     if (!req.body || Object.keys(req.body).length === 0) {
@@ -51,5 +55,20 @@ export const validateQuery = (req, res, next) => {
     }
 
     req.query = value;
+    next();
+};
+
+export const validateParams = (req, res, next) => {
+    const { error, value } = propertyIdSchema.validate(req.params, {
+        abortEarly: false,
+        stripUnknown: true
+    });
+
+    if (error) {
+        const errorMessage = error.details.map(err => err.message).join(', ');
+        return next(new CustomError(400, errorMessage));
+    }
+
+    req.params = value;
     next();
 };
