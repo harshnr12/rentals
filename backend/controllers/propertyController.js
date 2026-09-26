@@ -90,9 +90,15 @@ export const getProperties = async (req, res, next) => {
 
     const { rows } = await pool.query(query, values);
 
+    // Hide owner IDs from public response
+    const properties = rows.map(row => {
+        const { owner_id, ...property } = row;
+        return property;
+    });
+
     res.status(200).json({
-        count: rows.length,
-        properties: rows
+        count: properties.length,
+        properties
     });
 };
 
@@ -109,14 +115,13 @@ export const getProperty = async (req, res, next) => {
     `, [req.params.id]);
 
     if (rows.length === 0) {
-        return next(
-            new CustomError(404, 'Property not found')
-        );
+        return next(new CustomError(404, 'Property not found'));
     }
 
-    res.status(200).json({
-        property: rows[0]
-    });
+    // Hide owner ID from public response
+    const { owner_id, ...property } = rows[0];
+
+    res.status(200).json({ property });
 };
 
 
