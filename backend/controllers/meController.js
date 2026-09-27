@@ -23,9 +23,15 @@ export const getMe = async (req, res, next) => {
     const userId = req.user.id;
 
     const { rows } = await pool.query(`
-        SELECT id, name, email, phone
+        SELECT
+            id,
+            name,
+            email,
+            phone,
+            contact_views_count,
+            created_at
         FROM users
         WHERE id = $1
-    `, [userId]);
+    `, [req.user.id]);
     res.status(200).json(rows[0]);
 };

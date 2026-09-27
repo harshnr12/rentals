@@ -34,9 +34,6 @@ export const validateBody = (req, res, next) => {
 };
 
 export const validateQuery = (req, res, next) => {
-    if (!req.query || Object.keys(req.query).length === 0) {
-        return next();
-    }
 
     let schema;
     if (req.originalUrl.includes('/properties')) schema = propertyQuerySchema;
@@ -54,7 +51,7 @@ export const validateQuery = (req, res, next) => {
         return next(new CustomError(400, errorMessage));
     }
 
-    req.query = value;
+    req.validatedQuery = value;
     next();
 };
 

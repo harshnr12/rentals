@@ -75,8 +75,8 @@ GET {{baseUrl}}/properties
 
 
 ### Get properties with filters
-GET {{baseUrl}}/properties?cityId=1&locality=saket&bedrooms=2&maxRent=20000&sort=rent_asc
-
+# GET {{baseUrl}}/properties?cityId=1&locality=saket&bedrooms=2&maxRent=20000&sort=rent_asc
+GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
 
 ### Get a single property
 GET {{baseUrl}}/properties/{{propertyId}}

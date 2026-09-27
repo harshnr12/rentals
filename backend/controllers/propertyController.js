@@ -28,7 +28,7 @@ export const getProperties = async (req, res, next) => {
         bedrooms,
         propertyType,
         sort
-    } = req.query;
+    } = req.validatedQuery;
 
     const conditions = ['1 = 1'];
     const values = [];
@@ -85,7 +85,7 @@ export const getProperties = async (req, res, next) => {
         JOIN cities c ON p.city_id = c.id
         WHERE ${conditions.join(' AND ')}
         ${orderBy}
-        LIMIT 120;
+        LIMIT 200;
     `;
 
     const { rows } = await pool.query(query, values);
