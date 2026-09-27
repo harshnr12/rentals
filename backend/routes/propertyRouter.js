@@ -1,5 +1,6 @@
 import express from 'express';
 import protect from '../middlewares/auth.js';
+import { contactLimiter } from '../middlewares/rateLimiter.js';
 import {
     validateBody,
     validateQuery,
@@ -27,7 +28,7 @@ router.get("/:id", getProperty);
 router.use(protect);
 
 // Contact route — any logged-in user can view owner contact
-router.get("/:id/contact", getPropertyContact);
+router.get("/:id/contact", contactLimiter, getPropertyContact);
 
 // Delete does not need body validation
 router.delete('/:id', deleteProperty);

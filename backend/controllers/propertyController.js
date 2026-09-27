@@ -17,50 +17,88 @@ import deletePhotoFiles from '../utils/fileUtils.js';
  *     → increments contact_views_count
  */
 
-
 export const getProperties = async (req, res, next) => {
 
     const {
-        cityId,
-        locality,
-        minRent,
-        maxRent,
-        bedrooms,
-        propertyType,
-        sort
+        cityId, locality, minRent, maxRent, bedrooms, bathrooms,
+        propertyType, floorNo, totalFloors, furnishing, hasParking,
+        hasLift, allowSingleMale, allowSingleFemale, allowFamily, sort
     } = req.validatedQuery;
 
     const conditions = ['1 = 1'];
     const values = [];
 
+    // --- Standard Filters ---
     if (cityId) {
         values.push(cityId);
         conditions.push(`p.city_id = $${values.length}`);
     }
-
     if (locality) {
         values.push(`%${locality}%`);
         conditions.push(`p.locality ILIKE $${values.length}`);
     }
-
     if (minRent !== undefined) {
         values.push(minRent);
         conditions.push(`p.rent >= $${values.length}`);
     }
-
     if (maxRent !== undefined) {
         values.push(maxRent);
         conditions.push(`p.rent <= $${values.length}`);
     }
 
-    if (bedrooms !== undefined) {
+    // --- Multi-Select Array Filters (Using ANY) ---
+    if (bedrooms && bedrooms.length > 0) {
         values.push(bedrooms);
-        conditions.push(`p.bedrooms = $${values.length}`);
+        conditions.push(`p.bedrooms = ANY($${values.length})`);
+    }
+    if (bathrooms && bathrooms.length > 0) {
+        values.push(bathrooms);
+        conditions.push(`p.bathrooms = ANY($${values.length})`);
+    }
+    if (propertyType && propertyType.length > 0) {
+        values.push(propertyType);
+        conditions.push(`p.property_type = ANY($${values.length})`);
+    }
+    if (furnishing && furnishing.length > 0) {
+        values.push(furnishing);
+        conditions.push(`p.furnishing = ANY($${values.length})`);
     }
 
-    if (propertyType) {
-        values.push(propertyType);
-        conditions.push(`p.property_type = $${values.length}`);
+    // --- Exact Match Filters ---
+    if (floorNo !== undefined) {
+        values.push(floorNo);
+        conditions.push(`p.floor_no = $${values.length}`);
+    }
+    if (totalFloors !== undefined) {
+        values.push(totalFloors);
+        conditions.push(`p.total_floors = $${values.length}`);
+    }
+    if (hasParking !== undefined) {
+        values.push(hasParking);
+        conditions.push(`p.has_parking = $${values.length}`);
+    }
+    if (hasLift !== undefined) {
+        values.push(hasLift);
+        conditions.push(`p.has_lift = $${values.length}`);
+    }
+
+    // --- Tenant Preferences (Grouped as OR logic) ---
+    // If a user selects Single Male AND Family, they want properties that allow EITHER.
+    const tenantConditions = [];
+
+    if (allowSingleMale === true) {
+        tenantConditions.push('p.allow_single_male = true');
+    }
+    if (allowSingleFemale === true) {
+        tenantConditions.push('p.allow_single_female = true');
+    }
+    if (allowFamily === true) {
+        tenantConditions.push('p.allow_family = true');
+    }
+
+    // If any tenant filters were selected, group them in parentheses
+    if (tenantConditions.length > 0) {
+        conditions.push(`(${tenantConditions.join(' OR ')})`);
     }
 
     let orderBy = 'ORDER BY p.created_at DESC';

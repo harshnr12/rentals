@@ -4,6 +4,8 @@ import path from 'path';
 
 import logger from './middlewares/logger.js';
 import errorHandler from './middlewares/errorHandler.js';
+import { globalLimiter } from './middlewares/rateLimiter.js';
+
 import apiRouter from './routes/apiRouter.js';
 
 const app = express();
@@ -13,6 +15,7 @@ app.use(cors());                         // 1. Security/Access
 app.use(logger);                         // 2. Monitoring
 app.use(express.static(path.join(import.meta.dirname, 'public'), { maxAge: '1d' })); // 3. Static Assets
 app.use(express.json());                 // 4. Body Parsing
+app.use(globalLimiter)         // 5. Global Rate Limiter
 
 // Routes
 app.use('/api/v1', apiRouter);

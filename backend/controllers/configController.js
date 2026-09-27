@@ -16,7 +16,7 @@ export const getConfigData = async (req, res) => {
             sorts: ['newest', 'rent_asc', 'rent_desc']
         },
 
-        // 2. VALIDATION: Exact reflection of Joi schemas
+        // 2. VALIDATION: Exact reflection of Joi schemas (Single field boundaries)
         validation: {
             cityId: { type: 'number', required: true, min: 1 },
             locality: { type: 'string', required: true },
@@ -27,6 +27,7 @@ export const getConfigData = async (req, res) => {
             carpetAreaSqft: { type: 'number', required: true, min: 1 },
             bedrooms: { type: 'number', required: true, min: 1 },
             bathrooms: { type: 'number', required: true, min: 1 },
+            totalFloors: { type: 'number', required: true, min: 0 },
             floorNo: { type: 'number', required: true, min: 0 },
 
             // Strings (Enums)
@@ -37,14 +38,34 @@ export const getConfigData = async (req, res) => {
             hasParking: { type: 'boolean', required: false, default: false },
             hasLift: { type: 'boolean', required: false, default: false },
 
+            // Tenant Rules 
+            allowSingleMale: { type: 'boolean', required: false, default: false },
+            allowSingleFemale: { type: 'boolean', required: false, default: false },
+            allowFamily: { type: 'boolean', required: false, default: false },
+
             // Arrays
             photos: {
                 type: 'array',
                 required: false,
-                maxCount: 10,  // Tied to multer upload.array('photos', 10)
+                maxCount: 10,
                 maxSizeMb: 5,
                 allowedTypes: ['image/jpeg', 'image/png', 'image/webp']
             }
-        }
+        },
+
+        // 3. CROSS-FIELD CONSTRAINTS: Complex domain logic spanning multiple inputs
+        crossFieldConstraints: [
+            {
+                ruleType: 'less_than_or_equal',
+                field: 'floorNo',
+                targetField: 'totalFloors',
+                errorMessage: 'Floor number cannot be greater than total floors'
+            },
+            {
+                ruleType: 'require_at_least_one_true',
+                fields: ['allowSingleMale', 'allowSingleFemale', 'allowFamily'],
+                errorMessage: 'At least one tenant preference must be selected'
+            }
+        ]
     });
 };

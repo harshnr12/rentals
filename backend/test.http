@@ -12,7 +12,7 @@
 
 
 ### ==========================================
-### 1. AUTHENTICATION
+###     AUTHENTICATION
 ### ==========================================
 
 ### Signup
@@ -49,7 +49,7 @@ Content-Type: application/json
 
 
 ### ==========================================
-### 2. FILE UPLOAD
+###    FILE UPLOAD
 ### ==========================================
 
 ### Upload one image
@@ -67,25 +67,18 @@ Content-Type: image/jpeg
 
 
 ### ==========================================
-### 3. PROPERTIES
+###    PROPERTIES
 ### ==========================================
 
 ### Get all properties
 GET {{baseUrl}}/properties
 
-
-### Get properties with filters
-# GET {{baseUrl}}/properties?cityId=1&locality=saket&bedrooms=2&maxRent=20000&sort=rent_asc
-GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
-
 ### Get a single property
 GET {{baseUrl}}/properties/{{propertyId}}
-
 
 ### Invalid property ID
 # Tests router.param('id', validateParams)
 GET {{baseUrl}}/properties/abc
-
 
 ### Get property owner contact
 # Login required
@@ -120,7 +113,6 @@ Content-Type: application/json
 POST {{baseUrl}}/properties
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 {
     "cityId": 8,
     "locality": "Dwarka",
@@ -145,7 +137,6 @@ Content-Type: application/json
 POST {{baseUrl}}/properties
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 {
     "title": "Beautiful 2 BHK in Indiranagar",
     "rent": 45000
@@ -157,7 +148,6 @@ Content-Type: application/json
 PATCH {{baseUrl}}/properties/{{propertyId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 {
     "locality": "Rohini",
     "bedrooms": 3,
@@ -169,7 +159,6 @@ Content-Type: application/json
 PATCH {{baseUrl}}/properties/{{propertyId}}
 Authorization: Bearer {{token}}
 Content-Type: application/json
-
 {
     "rent": 22000
 }
@@ -182,7 +171,53 @@ Authorization: Bearer {{token}}
 
 
 ### ==========================================
-### 4. ME
+###    PROPERTIES with filters : Query String
+### ==========================================
+
+### Get all properties (No filters, should return newest first)
+GET {{baseUrl}}/properties
+
+
+### SINGLE Array Item (Tests if Joi .single() correctly wraps one item into an array)
+GET {{baseUrl}}/properties?bedrooms=2
+
+
+### MULTIPLE Array Items (Tests if SQL = ANY() correctly finds either 1 OR 2 BHK)
+GET {{baseUrl}}/properties?bedrooms=1&bedrooms=2
+
+
+### MULTIPLE String Array Items (Tests furnishing filters)
+GET {{baseUrl}}/properties?furnishing=semi_furnished&furnishing=fully_furnished
+
+
+### TENANT PREFERENCES - Single (Only single men)
+GET {{baseUrl}}/properties?allowSingleMale=true
+
+
+### TENANT PREFERENCES - Multiple (Tests the custom OR logic grouping)
+# Should return properties that allow Single Men OR Families
+GET {{baseUrl}}/properties?allowSingleMale=true&allowFamily=true
+
+
+### EXACT BOOLEANS (Tests if explicit 'false' works because of our !== undefined check)
+# Should only return properties that DO NOT have a lift
+GET {{baseUrl}}/properties?hasLift=false
+
+
+### RANGES & EXACT MATCHES (Tests rent limits and city combination)
+GET {{baseUrl}}/properties?cityId=1&minRent=10000&maxRent=25000&hasParking=true
+
+
+### THE "MEGATRON" QUERY (Tests absolute robustness)
+# Combines Arrays, Exact Matches, Booleans, Tenant OR logic, and Sorting
+GET {{baseUrl}}/properties?cityId=1&bedrooms=1&bedrooms=2&allowSingleMale=true&allowFamily=true&furnishing=semi_furnished&furnishing=fully_furnished&hasParking=true&sort=rent_asc
+
+### Another
+GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
+
+
+### ==========================================
+###    ME
 ### ==========================================
 
 ### Get current logged-in user
@@ -196,7 +231,7 @@ Authorization: Bearer {{token}}
 
 
 ### ==========================================
-### 5. FAVORITES
+###    FAVORITES
 ### ==========================================
 
 ### Get my favorites
@@ -217,7 +252,7 @@ Authorization: Bearer {{token}}
 
 
 ### ==========================================
-### 6. STATIC ASSETS
+###    STATIC ASSETS
 ### ==========================================
 
 ### Test image serving
@@ -226,7 +261,7 @@ GET {{host}}/images/user_1_1711000000.jpg
 
 
 ### ==========================================
-### 7. CONFIG DATA
+###    CONFIG DATA
 ### ==========================================
 
 ### Get config data

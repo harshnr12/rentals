@@ -12,7 +12,7 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    contact_views_count INT NOT NULL DEFAULT 0,
+    contacted_properties BIGINT[] NOT NULL DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -28,12 +28,18 @@ CREATE TABLE properties (
     bedrooms SMALLINT NOT NULL CHECK (bedrooms >= 1),
     bathrooms SMALLINT NOT NULL CHECK (bathrooms >= 1),
     floor_no SMALLINT NOT NULL CHECK (floor_no >= 0),
+    total_floors SMALLINT NOT NULL CHECK (total_floors >= 0),
     furnishing VARCHAR(20) NOT NULL CHECK (furnishing IN ('unfurnished', 'semi_furnished', 'fully_furnished')),
     property_type VARCHAR(20) NOT NULL CHECK (property_type IN ('apartment', 'villa')),
     has_parking BOOLEAN NOT NULL DEFAULT false,
     has_lift BOOLEAN NOT NULL DEFAULT false,
+    allow_single_male BOOLEAN NOT NULL DEFAULT false,
+    allow_single_female BOOLEAN NOT NULL DEFAULT false,
+    allow_family BOOLEAN NOT NULL DEFAULT false,
     photos TEXT[] NOT NULL DEFAULT '{}',
-    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_tenant_preference CHECK (allow_single_male OR allow_single_female OR allow_family),
+    CONSTRAINT chk_floor_logic CHECK (floor_no <= total_floors)
 );
 
 CREATE TABLE favorites (
@@ -42,9 +48,9 @@ CREATE TABLE favorites (
     PRIMARY KEY (user_id, property_id)
 );
 
--- Fast lookup 
+-- Fast lookup Indexes
 CREATE INDEX idx_properties_city_locality ON properties(city_id, locality);
 CREATE INDEX idx_properties_rent ON properties(rent);
 CREATE INDEX idx_properties_bedrooms ON properties(bedrooms);
 CREATE INDEX idx_properties_owner ON properties(owner_id);
--- CREATE INDEX idx_favorites_user_id ON favorites(property_id);
+CREATE INDEX idx_favorites_property_id ON favorites(property_id);

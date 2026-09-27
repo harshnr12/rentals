@@ -458,6 +458,7 @@ const TENANTS = [
 // ============================================================================
 
 // 4 BHK units represent ground-floor luxury villas (floor 0).
+// Added new required fields (totalFloors, allowSingleMale, allowSingleFemale, allowFamily) to templates.
 
 const PROPERTY_TEMPLATES = [
     {
@@ -467,7 +468,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 500,
         bathrooms: 1,
         furnishing: 'unfurnished',
-        floor: 2
+        floor: 2,
+        totalFloors: 5, // Added new rule: floor_no <= total_floors
+        allowSingleMale: true, // Added new tenant rule
+        allowSingleFemale: true, // Added new tenant rule
+        allowFamily: false // Added new tenant rule
     },
 
     {
@@ -477,7 +482,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 880,
         bathrooms: 2,
         furnishing: 'semi_furnished',
-        floor: 4
+        floor: 4,
+        totalFloors: 7, // Added
+        allowSingleMale: true, // Added
+        allowSingleFemale: true, // Added
+        allowFamily: true // Added
     },
 
     {
@@ -487,7 +496,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 920,
         bathrooms: 2,
         furnishing: 'fully_furnished',
-        floor: 7
+        floor: 7,
+        totalFloors: 10, // Added
+        allowSingleMale: false, // Added (Strict family only)
+        allowSingleFemale: false, // Added
+        allowFamily: true // Added
     },
 
     {
@@ -497,7 +510,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 1350,
         bathrooms: 3,
         furnishing: 'semi_furnished',
-        floor: 5
+        floor: 5,
+        totalFloors: 8, // Added
+        allowSingleMale: true, // Added
+        allowSingleFemale: true, // Added
+        allowFamily: true // Added
     },
 
     {
@@ -507,7 +524,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 1450,
         bathrooms: 3,
         furnishing: 'fully_furnished',
-        floor: 9
+        floor: 9,
+        totalFloors: 15, // Added
+        allowSingleMale: false, // Added (Strict family only)
+        allowSingleFemale: false, // Added
+        allowFamily: true // Added
     },
 
     {
@@ -517,7 +538,11 @@ const PROPERTY_TEMPLATES = [
         carpetMax: 2300,
         bathrooms: 4,
         furnishing: 'fully_furnished',
-        floor: 0
+        floor: 0,
+        totalFloors: 2, // Added (Villas generally have 2-3 floors total)
+        allowSingleMale: false, // Added
+        allowSingleFemale: false, // Added
+        allowFamily: true // Added
     } // Villa
 ];
 
@@ -624,21 +649,23 @@ async function seed() {
 
                 const phone = `+91 ${globalPhoneCounter++}`;
 
+                // Changed contact_views_count to contacted_properties (initialized as empty array)
                 const ownerRes = await client.query(
                     `INSERT INTO users (
                         name,
                         email,
                         password_hash,
                         phone,
-                        contact_views_count
+                        contacted_properties 
                     )
-                    VALUES ($1, $2, $3, $4, 0)
+                    VALUES ($1, $2, $3, $4, $5)
                     RETURNING id`,
                     [
                         fullName,
                         email,
                         defaultPasswordHash,
-                        phone
+                        phone,
+                        [] // Mapped default empty array for owners
                     ]
                 );
 
@@ -728,6 +755,7 @@ async function seed() {
                         `${isVilla ? 'Villa' : 'Apartment'} ` +
                         `in ${locality.name}`;
 
+                    // Added total_floors and allow_* booleans mapped from templates
                     const propRes = await client.query(
                         `INSERT INTO properties (
                             owner_id,
@@ -740,15 +768,20 @@ async function seed() {
                             bedrooms,
                             bathrooms,
                             floor_no,
+                            total_floors,
                             furnishing,
                             property_type,
                             has_parking,
                             has_lift,
+                            allow_single_male,
+                            allow_single_female,
+                            allow_family,
                             photos
                         )
                         VALUES (
                             $1, $2, $3, $4, $5, $6, $7, $8,
-                            $9, $10, $11, $12, $13, $14, $15
+                            $9, $10, $11, $12, $13, $14, $15,
+                            $16, $17, $18, $19
                         )
                         RETURNING id`,
                         [
@@ -762,12 +795,16 @@ async function seed() {
                             template.bhk,
                             template.bathrooms,
                             template.floor,
+                            template.totalFloors, // Added field
                             template.furnishing,
                             isVilla
                                 ? 'villa'
                                 : 'apartment',
                             true,
                             template.floor > 1,
+                            template.allowSingleMale, // Added field
+                            template.allowSingleFemale, // Added field
+                            template.allowFamily, // Added field
                             photos
                         ]
                     );
@@ -800,6 +837,10 @@ async function seed() {
         );
 
         for (const tenant of TENANTS) {
+            // Mapped the integer "views" to an actual array of valid Property IDs 
+            // from the inserted list. This perfectly maintains your simulated history data!
+            const seededContactHistory = insertedPropertyIds.slice(0, tenant.views);
+
             const tenantRes = await client.query(
                 `INSERT INTO users (
                     id,
@@ -807,7 +848,7 @@ async function seed() {
                     email,
                     password_hash,
                     phone,
-                    contact_views_count
+                    contacted_properties
                 )
                 OVERRIDING SYSTEM VALUE
                 VALUES ($1, $2, $3, $4, $5, $6)
@@ -818,7 +859,7 @@ async function seed() {
                     tenant.email,
                     defaultPasswordHash,
                     tenant.phone,
-                    tenant.views
+                    seededContactHistory // Array of valid seeded BIGINT IDs
                 ]
             );
 
