@@ -5,14 +5,22 @@
 @host = http://localhost:8000
 
 # Paste the JWT from Login response here
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyNiIsImlhdCI6MTc5MDM5OTE5NCwiZXhwIjoxNzkxMDAzOTk0fQ.2psuFoRMh_vjwZ6W8ioUV6BDUAiZHUrJCTflK7Pzy-M
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDUyNjI1MCwiZXhwIjoxNzkxMTMxMDUwfQ.M2Pl7Sxxbyy05t7AKYkc-MzeiUGexqlYQIqJxyc_8xM
 
 # Change this when testing another property
 @propertyId = 1
 
 
 ### ==========================================
-###     AUTHENTICATION
+### 1. CONFIG & METADATA (Server-Driven UI)
+### ==========================================
+
+### Get config data (Cities, constraints, validation rules)
+GET {{baseUrl}}/config
+
+
+### ==========================================
+### 2. AUTHENTICATION
 ### ==========================================
 
 ### Signup
@@ -26,7 +34,6 @@ Content-Type: application/json
     "phone": "9876543210"
 }
 
-
 ### Login
 # Copy the returned token into @token above
 POST {{baseUrl}}/auth/login
@@ -37,8 +44,7 @@ Content-Type: application/json
     "password": "password123"
 }
 
-
-### Wrong password
+### Wrong password (Test error handling)
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
@@ -49,11 +55,184 @@ Content-Type: application/json
 
 
 ### ==========================================
-###    FILE UPLOAD
+### 3. PROPERTIES (Search & View)
+### ==========================================
+
+### Get all properties (Newest first by default)
+GET {{baseUrl}}/properties
+
+### Get a single property details
+GET {{baseUrl}}/properties/{{propertyId}}
+
+### Invalid property ID (Tests router.param validation)
+GET {{baseUrl}}/properties/abc
+
+### Get property owner contact (Consumes 1 Rate Limit Credit)
+# Also appends property to user's contacted_properties array
+GET {{baseUrl}}/properties/{{propertyId}}/contact
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### 4. PROPERTIES (Advanced Search Filters)
+### ==========================================
+
+### SINGLE Array Item (Tests Joi .single() wrapping)
+GET {{baseUrl}}/properties?bedrooms=2
+
+### MULTIPLE Array Items (Tests SQL = ANY() logic)
+GET {{baseUrl}}/properties?bedrooms=1&bedrooms=2
+
+### MULTIPLE String Array Items (Furnishing)
+GET {{baseUrl}}/properties?furnishing=semi_furnished&furnishing=fully_furnished
+
+### TENANT PREFERENCES (Single)
+GET {{baseUrl}}/properties?allowSingleMale=true
+
+### TENANT PREFERENCES (Multiple OR logic)
+GET {{baseUrl}}/properties?allowSingleMale=true&allowFamily=true
+
+### EXACT BOOLEANS (Explicit 'false' check)
+GET {{baseUrl}}/properties?hasLift=false
+
+### RANGES & EXACT MATCHES (Rent limits and City)
+GET {{baseUrl}}/properties?cityId=1&minRent=10000&maxRent=25000&hasParking=true
+
+### THE "MEGATRON" QUERY (Tests absolute robustness)
+GET {{baseUrl}}/properties?cityId=1&bedrooms=1&bedrooms=2&allowSingleMale=true&allowFamily=true&furnishing=semi_furnished&furnishing=fully_furnished&hasParking=true&sort=rent_asc
+
+### General Search Case
+GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
+
+
+### ==========================================
+### 5. USER DASHBOARD (Me)
+### ==========================================
+
+### Get current logged-in user details
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Get properties listed by me (My Listings)
+GET {{baseUrl}}/me/properties
+Authorization: Bearer {{token}}
+
+### Get properties I have contacted (Contact History)
+GET {{baseUrl}}/me/contacted
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### 6. USER DASHBOARD (Favorites)
+### ==========================================
+
+### Get my favorites
+GET {{baseUrl}}/me/favorites
+Authorization: Bearer {{token}}
+
+### Toggle favorite ON / OFF
+# Send once to add, send again to remove
+POST {{baseUrl}}/me/favorites/{{propertyId}}
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### 7. PROPERTY MANAGEMENT (Create/Update/Delete)
+### ==========================================
+
+### Create property
+POST {{baseUrl}}/properties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "cityId": 8,
+    "locality": "Dwarka",
+    "rent": 25000,
+    "deposit": 50000,
+    "carpetAreaSqft": 900,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "totalFloors": 5,
+    "floorNo": 3,
+    "furnishing": "semi_furnished",
+    "propertyType": "apartment",
+    "hasParking": true,
+    "hasLift": true,
+    "allowSingleMale": true,
+    "allowSingleFemale": true,
+    "allowFamily": false
+}
+
+### Create property with uploaded photos
+# Replace with actual photo paths returned by POST /upload
+POST {{baseUrl}}/properties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "cityId": 8,
+    "locality": "Dwarka",
+    "rent": 25000,
+    "deposit": 50000,
+    "carpetAreaSqft": 900,
+    "bedrooms": 2,
+    "bathrooms": 2,
+    "totalFloors": 5,
+    "floorNo": 3,
+    "furnishing": "semi_furnished",
+    "propertyType": "apartment",
+    "hasParking": true,
+    "hasLift": true,
+    "allowSingleMale": true,
+    "allowSingleFemale": true,
+    "allowFamily": false,
+    "photos": [
+        "/images/user_1_1711000000.jpg"
+    ]
+}
+
+### Create property - bad request (Missing required tenant booleans/totalFloors)
+POST {{baseUrl}}/properties
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "rent": 45000
+}
+
+### Update property (Must be owner)
+PATCH {{baseUrl}}/properties/{{propertyId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "locality": "Rohini",
+    "bedrooms": 3,
+    "hasLift": false,
+    "allowFamily": true
+}
+
+### Update only rent
+PATCH {{baseUrl}}/properties/{{propertyId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "rent": 22000
+}
+
+### Delete property (Must be owner)
+DELETE {{baseUrl}}/properties/{{propertyId}}
+Authorization: Bearer {{token}}
+
+
+### ==========================================
+### 8. FILE UPLOADS & STATIC ASSETS
 ### ==========================================
 
 ### Upload one image
-# Field name is "photos" because multer uses upload.array('photos', 10)
+# Generates the file URL to be used in Create Property
 POST {{baseUrl}}/upload
 Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
@@ -65,204 +244,6 @@ Content-Type: image/jpeg
 < ./public/images/1_1.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
 
-
-### ==========================================
-###    PROPERTIES
-### ==========================================
-
-### Get all properties
-GET {{baseUrl}}/properties
-
-### Get a single property
-GET {{baseUrl}}/properties/{{propertyId}}
-
-### Invalid property ID
-# Tests router.param('id', validateParams)
-GET {{baseUrl}}/properties/abc
-
-### Get property owner contact
-# Login required
-GET {{baseUrl}}/properties/{{propertyId}}/contact
-Authorization: Bearer {{token}}
-
-
-### Create property
-# title is generated by the backend
-POST {{baseUrl}}/properties
-Authorization: Bearer {{token}}
-Content-Type: application/json
-
-{
-    "cityId": 8,
-    "locality": "Dwarka",
-    "rent": 25000,
-    "deposit": 50000,
-    "carpetAreaSqft": 900,
-    "bedrooms": 2,
-    "bathrooms": 2,
-    "floorNo": 3,
-    "furnishing": "semi_furnished",
-    "propertyType": "apartment",
-    "hasParking": true,
-    "hasLift": true
-}
-
-
-### Create property with uploaded photos
-# Replace the photo path with the path returned by POST /upload
-POST {{baseUrl}}/properties
-Authorization: Bearer {{token}}
-Content-Type: application/json
-{
-    "cityId": 8,
-    "locality": "Dwarka",
-    "rent": 25000,
-    "deposit": 50000,
-    "carpetAreaSqft": 900,
-    "bedrooms": 2,
-    "bathrooms": 2,
-    "floorNo": 3,
-    "furnishing": "semi_furnished",
-    "propertyType": "apartment",
-    "hasParking": true,
-    "hasLift": true,
-    "photos": [
-        "/images/user_1_1711000000.jpg"
-    ]
-}
-
-
-### Create property - bad request
-# No title should be sent from the client
-POST {{baseUrl}}/properties
-Authorization: Bearer {{token}}
-Content-Type: application/json
-{
-    "title": "Beautiful 2 BHK in Indiranagar",
-    "rent": 45000
-}
-
-
-### Update property
-# Must be owned by the logged-in user
-PATCH {{baseUrl}}/properties/{{propertyId}}
-Authorization: Bearer {{token}}
-Content-Type: application/json
-{
-    "locality": "Rohini",
-    "bedrooms": 3,
-    "hasLift": false
-}
-
-
-### Update only rent
-PATCH {{baseUrl}}/properties/{{propertyId}}
-Authorization: Bearer {{token}}
-Content-Type: application/json
-{
-    "rent": 22000
-}
-
-
-### Delete property
-# Running this will actually delete the property
-DELETE {{baseUrl}}/properties/{{propertyId}}
-Authorization: Bearer {{token}}
-
-
-### ==========================================
-###    PROPERTIES with filters : Query String
-### ==========================================
-
-### Get all properties (No filters, should return newest first)
-GET {{baseUrl}}/properties
-
-
-### SINGLE Array Item (Tests if Joi .single() correctly wraps one item into an array)
-GET {{baseUrl}}/properties?bedrooms=2
-
-
-### MULTIPLE Array Items (Tests if SQL = ANY() correctly finds either 1 OR 2 BHK)
-GET {{baseUrl}}/properties?bedrooms=1&bedrooms=2
-
-
-### MULTIPLE String Array Items (Tests furnishing filters)
-GET {{baseUrl}}/properties?furnishing=semi_furnished&furnishing=fully_furnished
-
-
-### TENANT PREFERENCES - Single (Only single men)
-GET {{baseUrl}}/properties?allowSingleMale=true
-
-
-### TENANT PREFERENCES - Multiple (Tests the custom OR logic grouping)
-# Should return properties that allow Single Men OR Families
-GET {{baseUrl}}/properties?allowSingleMale=true&allowFamily=true
-
-
-### EXACT BOOLEANS (Tests if explicit 'false' works because of our !== undefined check)
-# Should only return properties that DO NOT have a lift
-GET {{baseUrl}}/properties?hasLift=false
-
-
-### RANGES & EXACT MATCHES (Tests rent limits and city combination)
-GET {{baseUrl}}/properties?cityId=1&minRent=10000&maxRent=25000&hasParking=true
-
-
-### THE "MEGATRON" QUERY (Tests absolute robustness)
-# Combines Arrays, Exact Matches, Booleans, Tenant OR logic, and Sorting
-GET {{baseUrl}}/properties?cityId=1&bedrooms=1&bedrooms=2&allowSingleMale=true&allowFamily=true&furnishing=semi_furnished&furnishing=fully_furnished&hasParking=true&sort=rent_asc
-
-### Another
-GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
-
-
-### ==========================================
-###    ME
-### ==========================================
-
-### Get current logged-in user
-GET {{baseUrl}}/me
-Authorization: Bearer {{token}}
-
-
-### Get my properties
-GET {{baseUrl}}/me/properties
-Authorization: Bearer {{token}}
-
-
-### ==========================================
-###    FAVORITES
-### ==========================================
-
-### Get my favorites
-GET {{baseUrl}}/me/favorites
-Authorization: Bearer {{token}}
-
-
-### Toggle favorite ON
-# Add property to favorites
-POST {{baseUrl}}/me/favorites/{{propertyId}}
-Authorization: Bearer {{token}}
-
-
-### Toggle favorite OFF
-# Send the same request again to remove it
-POST {{baseUrl}}/me/favorites/{{propertyId}}
-Authorization: Bearer {{token}}
-
-
-### ==========================================
-###    STATIC ASSETS
-### ==========================================
-
-### Test image serving
+### Test image serving (Static Files)
 # Replace filename with an actual file in public/images
-GET {{host}}/images/user_1_1711000000.jpg
-
-
-### ==========================================
-###    CONFIG DATA
-### ==========================================
-
-### Get config data
-GET {{baseUrl}}/config
+GET {{host}}/images/1_1.jpg

@@ -1,39 +1,50 @@
 import pool from '../db/pool.js';
+import CustomError from '../utils/CustomError.js';
+
+export const getMe = async (req, res, next) => {
+    const userId = req.user.id;
+
+    // Fetch user details, contacted history,
+    //  and aggregate favorite IDs into a single array
+    const { rows } = await pool.query(`
+        SELECT 
+            id, 
+            name, 
+            email, 
+            phone, 
+            created_at,
+            contacted_properties,
+            ARRAY(SELECT property_id FROM favorites WHERE user_id = $1) AS favorite_property_ids
+        FROM users
+        WHERE id = $1
+    `, [userId]);
+
+    if (rows.length === 0) {
+        return next(new CustomError(404, 'User not found'));
+    }
+
+    res.status(200).json({
+        user: rows[0]
+    });
+};
 
 export const getMyProperties = async (req, res, next) => {
-    const ownerId = req.user.id;
+    const userId = req.user.id;
 
     const { rows } = await pool.query(`
-        SELECT
-            p.*,
+        SELECT 
+            p.*, 
             c.name AS city_name
         FROM properties p
         JOIN cities c ON p.city_id = c.id
         WHERE p.owner_id = $1
         ORDER BY p.created_at DESC
-    `, [ownerId]);
+    `, [userId]);
 
     res.status(200).json({
         count: rows.length,
         properties: rows
     });
-};
-
-export const getMe = async (req, res, next) => {
-    const userId = req.user.id;
-
-    const { rows } = await pool.query(`
-        SELECT
-            id,
-            name,
-            email,
-            phone,
-            contact_views_count,
-            created_at
-        FROM users
-        WHERE id = $1
-    `, [req.user.id]);
-    res.status(200).json(rows[0]);
 };
 
 export const getContactedProperties = async (req, res, next) => {

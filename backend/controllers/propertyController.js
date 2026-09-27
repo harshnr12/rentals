@@ -162,12 +162,12 @@ export const getProperty = async (req, res, next) => {
     res.status(200).json({ property });
 };
 
-
 export const getPropertyContact = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user.id;
 
+    // 1. Fetch the owner's details
     const { rows } = await pool.query(`
         SELECT
             u.name AS owner_name,
@@ -181,17 +181,18 @@ export const getPropertyContact = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
+    // 2. Append property ID to user's history array (The Fix)
+    // ANY() logic ensures we don't add duplicates if user contact the same owner twice
     await pool.query(`
         UPDATE users
-        SET contact_views_count = contact_views_count + 1
-        WHERE id = $1
-    `, [userId]);
+        SET contacted_properties = array_append(contacted_properties, $1)
+        WHERE id = $2 AND NOT ($1 = ANY(contacted_properties))
+    `, [id, userId]);
 
     res.status(200).json({
         owner: rows[0]
     });
 };
-
 
 export const createProperty = async (req, res, next) => {
 
