@@ -1,6 +1,5 @@
 import express from 'express';
 import protect from '../middlewares/auth.js';
-import { contactLimiter } from '../middlewares/rateLimiter.js';
 import {
     validateBody,
     validateQuery,
@@ -9,12 +8,12 @@ import {
 import {
     getProperties,
     getProperty,
-    getPropertyContact,
     createProperty,
     updateProperty,
     deleteProperty,
 
 } from '../controllers/propertyController.js';
+import contactRouter from './contactRouter.js';
 const router = express.Router();
 
 // Validate every :id parameter in this router
@@ -28,7 +27,7 @@ router.get("/:id", getProperty);
 router.use(protect);
 
 // Contact route — any logged-in user can view owner contact
-router.get("/:id/contact", contactLimiter, getPropertyContact);
+router.use("/:id/contact", contactRouter);
 
 // Delete does not need body validation
 router.delete('/:id', deleteProperty);

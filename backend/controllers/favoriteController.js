@@ -52,5 +52,8 @@ export const getMyFavorites = async (req, res, next) => {
         return property;
     });
 
-    res.status(200).json(properties);
+    res.status(200).json({
+        count: properties.length,
+        properties
+    });
 };
