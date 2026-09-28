@@ -11,12 +11,13 @@ import deletePhotoFiles from '../utils/fileUtils.js';
  *     → property details + city name
  *     → no owner information (name, phone, ID)
  *
+ *
  * GET /properties/:id/contact
  *     → LOGIN REQUIRED
  *     → owner name + phone only (no owner ID)
- *     → increments contact_views_count
+ *     → rate limited (10 views / 24 hours per user via contactLimiter)
+ *     → appends property ID to user's contacted_properties array (deduplicated)
  */
-
 export const getProperties = async (req, res, next) => {
 
     const {
@@ -120,7 +121,6 @@ export const getProperties = async (req, res, next) => {
             p.*,
             c.name AS city_name
         FROM properties p
-        JOIN cities c ON p.city_id = c.id
         WHERE ${conditions.join(' AND ')}
         ${orderBy}
         LIMIT 200;
@@ -148,7 +148,6 @@ export const getProperty = async (req, res, next) => {
             p.*,
             c.name AS city_name
         FROM properties p
-        JOIN cities c ON p.city_id = c.id
         WHERE p.id = $1
     `, [req.params.id]);
 

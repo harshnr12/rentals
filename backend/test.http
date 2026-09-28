@@ -1,14 +1,15 @@
 ### ==========================================
 ### ENVIRONMENT VARIABLES
 ### ==========================================
-@baseUrl = http://localhost:8000/api/v1
 @host = http://localhost:8000
+@baseUrl = {{host}}/api/v1
+
+# Change this when testing another property
+@propertyId = 20
 
 # Paste the JWT from Login response here
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDUyNjI1MCwiZXhwIjoxNzkxMTMxMDUwfQ.M2Pl7Sxxbyy05t7AKYkc-MzeiUGexqlYQIqJxyc_8xM
 
-# Change this when testing another property
-@propertyId = 1
 
 
 ### ==========================================

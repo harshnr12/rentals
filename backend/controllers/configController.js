@@ -17,7 +17,7 @@ export const getConfigData = async (req, res) => {
         },
 
         // 2. VALIDATION: Exact reflection of Joi schemas (Single field boundaries)
-        validation: {
+        fieldValidation: {
             cityId: { type: 'number', required: true, min: 1 },
             locality: { type: 'string', required: true },
 
