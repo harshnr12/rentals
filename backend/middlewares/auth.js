@@ -13,7 +13,10 @@ const protect = async (req, res, next) => {
         const token = auth.substring(7);
         const decoded = jwt.verify(token, process.env.SECRET_STR);
 
-        const { rows } = await pool.query('SELECT id, email FROM users WHERE id = $1', [decoded.id]);
+        const { rows } = await pool.query(
+            'SELECT id, email FROM users WHERE id = $1',
+            [decoded.id]
+        );
         const user = rows[0];
 
         if (!user) {

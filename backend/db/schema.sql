@@ -12,7 +12,6 @@ CREATE TABLE users (
     email VARCHAR(255) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     phone VARCHAR(20) NOT NULL,
-    contacted_properties BIGINT[] NOT NULL DEFAULT '{}',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -48,9 +47,47 @@ CREATE TABLE favorites (
     PRIMARY KEY (user_id, property_id)
 );
 
+-- =========================================================
+-- CONTACT HISTORY
+-- =========================================================
+-- Stores a user's historical contact/unlock interactions
+-- with properties.
+--
+-- One row represents one unique user-property contact.
+-- The composite primary key prevents the same user from
+-- being recorded twice for the same property.
+--
+-- IMPORTANT:
+-- property_id intentionally does NOT have a foreign key
+-- constraint to properties(id).
+--
+-- Contact history is treated as immutable historical data:
+-- if a property is later deleted, the user's past contact
+-- with that property must remain recorded.
+--
+-- Therefore, adding:
+--
+--     REFERENCES properties(id) ON DELETE CASCADE
+--
+-- would be incorrect for this requirement because deleting
+-- the property would also delete the historical contact row.
+--
+-- The property row may disappear, but the contact record
+-- remains available for usage tracking, history, and future
+-- contact-limit/premium logic.
+-- =========================================================
+CREATE TABLE contacted_properties (
+    user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    property_id BIGINT NOT NULL,
+    contacted_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, property_id)
+);
+
 -- Fast lookup Indexes
 CREATE INDEX idx_properties_city_locality ON properties(city_id, locality);
 CREATE INDEX idx_properties_rent ON properties(rent);
 CREATE INDEX idx_properties_bedrooms ON properties(bedrooms);
 CREATE INDEX idx_properties_owner ON properties(owner_id);
 CREATE INDEX idx_favorites_property_id ON favorites(property_id);
+CREATE INDEX idx_contacted_properties_property_id ON contacted_properties(property_id);
+-- last one Used when looking up all users who contacted a property.

@@ -417,7 +417,6 @@ const TENANTS = [
         name: 'Aarav Nair',
         email: 'aarav_nair@gmail.com',
         phone: '9820011001',
-        views: 0
     },
 
     {
@@ -425,7 +424,6 @@ const TENANTS = [
         name: 'Nikhil Thapar',
         email: 'nikhil_thapar@gmail.com',
         phone: '9820011002',
-        views: 2
     },
 
     {
@@ -433,7 +431,6 @@ const TENANTS = [
         name: 'Kavya Pillai',
         email: 'kavya_pillai@gmail.com',
         phone: '9820011003',
-        views: 4
     },
 
     {
@@ -441,7 +438,6 @@ const TENANTS = [
         name: 'Siddharth Menon',
         email: 'siddharth_menon@gmail.com',
         phone: '9820011004',
-        views: 5
     },
 
     {
@@ -449,7 +445,6 @@ const TENANTS = [
         name: 'Mayank Bisht',
         email: 'mayank_bisht@gmail.com',
         phone: '9820011005',
-        views: 12
     }
 ];
 
@@ -458,7 +453,6 @@ const TENANTS = [
 // ============================================================================
 
 // 4 BHK units represent ground-floor luxury villas (floor 0).
-// Added new required fields (totalFloors, allowSingleMale, allowSingleFemale, allowFamily) to templates.
 
 const PROPERTY_TEMPLATES = [
     {
@@ -469,10 +463,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 1,
         furnishing: 'unfurnished',
         floor: 2,
-        totalFloors: 5, // Added new rule: floor_no <= total_floors
-        allowSingleMale: true, // Added new tenant rule
-        allowSingleFemale: true, // Added new tenant rule
-        allowFamily: false // Added new tenant rule
+        totalFloors: 5,
+        allowSingleMale: true,
+        allowSingleFemale: true,
+        allowFamily: false
     },
 
     {
@@ -483,10 +477,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 2,
         furnishing: 'semi_furnished',
         floor: 4,
-        totalFloors: 7, // Added
-        allowSingleMale: true, // Added
-        allowSingleFemale: true, // Added
-        allowFamily: true // Added
+        totalFloors: 7,
+        allowSingleMale: true,
+        allowSingleFemale: true,
+        allowFamily: true
     },
 
     {
@@ -497,10 +491,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 2,
         furnishing: 'fully_furnished',
         floor: 7,
-        totalFloors: 10, // Added
-        allowSingleMale: false, // Added (Strict family only)
-        allowSingleFemale: false, // Added
-        allowFamily: true // Added
+        totalFloors: 10,
+        allowSingleMale: false,  // (Strict family only)
+        allowSingleFemale: false,
+        allowFamily: true
     },
 
     {
@@ -511,10 +505,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 3,
         furnishing: 'semi_furnished',
         floor: 5,
-        totalFloors: 8, // Added
-        allowSingleMale: true, // Added
-        allowSingleFemale: true, // Added
-        allowFamily: true // Added
+        totalFloors: 8,
+        allowSingleMale: true,
+        allowSingleFemale: true,
+        allowFamily: true
     },
 
     {
@@ -525,10 +519,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 3,
         furnishing: 'fully_furnished',
         floor: 9,
-        totalFloors: 15, // Added
-        allowSingleMale: false, // Added (Strict family only)
-        allowSingleFemale: false, // Added
-        allowFamily: true // Added
+        totalFloors: 15,
+        allowSingleMale: false,  // (Strict family only)
+        allowSingleFemale: false,
+        allowFamily: true
     },
 
     {
@@ -539,10 +533,10 @@ const PROPERTY_TEMPLATES = [
         bathrooms: 4,
         furnishing: 'fully_furnished',
         floor: 0,
-        totalFloors: 2, // Added (Villas generally have 2-3 floors total)
-        allowSingleMale: false, // Added
-        allowSingleFemale: false, // Added
-        allowFamily: true // Added
+        totalFloors: 2,
+        allowSingleMale: false,
+        allowSingleFemale: false,
+        allowFamily: true
     } // Villa
 ];
 
@@ -581,16 +575,22 @@ async function seed() {
 
         console.log('Resetting existing database tables...');
 
-        // Cascades clean reset across favorites, properties, users, and cities.
+        // Reset all seed-managed tables before inserting fresh test data.
+        // CASCADE handles dependent rows
         // RESTART IDENTITY resets normal PostgreSQL identity sequences.
-        await client.query(
-            'TRUNCATE favorites, properties, users, cities RESTART IDENTITY CASCADE'
-        );
-
-        const defaultPasswordHash = await bcrypt.hash(
-            'test1234',
-            10
-        );
+        // Contact history is intentionally cleared during a fresh seed.
+        // New contacted_properties rows are created only when the contact
+        // endpoint is actually used.
+        await client.query(`
+            TRUNCATE
+                favorites,
+                contacted_properties,
+                properties,
+                users,
+                cities
+            RESTART IDENTITY CASCADE
+        `);
+        const defaultPasswordHash = await bcrypt.hash('test1234', 10);
 
         let globalPhoneCounter = 9811001001;
         let globalPropertyIndex = 0;
@@ -649,26 +649,22 @@ async function seed() {
 
                 const phone = `+91 ${globalPhoneCounter++}`;
 
-                // Changed contact_views_count to contacted_properties (initialized as empty array)
                 const ownerRes = await client.query(
                     `INSERT INTO users (
                         name,
                         email,
                         password_hash,
-                        phone,
-                        contacted_properties 
+                        phone
                     )
-                    VALUES ($1, $2, $3, $4, $5)
+                    VALUES ($1, $2, $3, $4)
                     RETURNING id`,
                     [
                         fullName,
                         email,
                         defaultPasswordHash,
-                        phone,
-                        [] // Mapped default empty array for owners
+                        phone
                     ]
                 );
-
                 cityOwnerIds.push(ownerRes.rows[0].id);
             }
 
@@ -755,7 +751,7 @@ async function seed() {
                         `${isVilla ? 'Villa' : 'Apartment'} ` +
                         `in ${locality.name}`;
 
-                    // Added total_floors and allow_* booleans mapped from templates
+                    //  total_floors and allow_ * booleans mapped from templates
                     const propRes = await client.query(
                         `INSERT INTO properties (
                             owner_id,
@@ -795,16 +791,16 @@ async function seed() {
                             template.bhk,
                             template.bathrooms,
                             template.floor,
-                            template.totalFloors, // Added field
+                            template.totalFloors,
                             template.furnishing,
                             isVilla
                                 ? 'villa'
                                 : 'apartment',
                             true,
                             template.floor > 1,
-                            template.allowSingleMale, // Added field
-                            template.allowSingleFemale, // Added field
-                            template.allowFamily, // Added field
+                            template.allowSingleMale,
+                            template.allowSingleFemale,
+                            template.allowFamily,
                             photos
                         ]
                     );
@@ -832,14 +828,9 @@ async function seed() {
         // Therefore, the identity sequence remains at 120 and the next
         // normal signup will receive ID 121.
 
-        console.log(
-            'Inserting 5 dedicated tenant/demo accounts...'
-        );
+        console.log('Inserting 5 dedicated tenant/demo accounts...');
 
         for (const tenant of TENANTS) {
-            // Mapped the integer "views" to an actual array of valid Property IDs 
-            // from the inserted list. This perfectly maintains your simulated history data!
-            const seededContactHistory = insertedPropertyIds.slice(0, tenant.views);
 
             const tenantRes = await client.query(
                 `INSERT INTO users (
@@ -847,19 +838,17 @@ async function seed() {
                     name,
                     email,
                     password_hash,
-                    phone,
-                    contacted_properties
+                    phone
                 )
                 OVERRIDING SYSTEM VALUE
-                VALUES ($1, $2, $3, $4, $5, $6)
+                VALUES ($1, $2, $3, $4, $5)
                 RETURNING id`,
                 [
                     tenant.id,
                     tenant.name,
                     tenant.email,
                     defaultPasswordHash,
-                    tenant.phone,
-                    seededContactHistory // Array of valid seeded BIGINT IDs
+                    tenant.phone
                 ]
             );
 
@@ -906,9 +895,7 @@ async function seed() {
 
         await client.query('COMMIT');
 
-        console.log(
-            'Database seeding successfully finished:'
-        );
+        console.log('Database seeding successfully finished:');
 
         console.log('- 8 Cities');
         console.log('- 120 Properties');
@@ -916,15 +903,11 @@ async function seed() {
         console.log('- 5 Demo/Tenant Accounts (IDs 1001-1005)');
         console.log('- Tenant Password: test1234');
         console.log('- Pre-configured test favorites for tenants');
+        console.log('- Contact history: empty (created by the contact endpoint)');
+
     } catch (error) {
         await client.query('ROLLBACK');
-
-        console.error(
-            'Database seeding failed:',
-            error
-        );
-
-        process.exit(1);
+        console.error('Database seeding failed:', error);
     } finally {
         client.release();
         await pool.end();

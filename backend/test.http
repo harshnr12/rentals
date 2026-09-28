@@ -8,8 +8,7 @@
 @propertyId = 20
 
 # Paste the JWT from Login response here
-@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDUyNjI1MCwiZXhwIjoxNzkxMTMxMDUwfQ.M2Pl7Sxxbyy05t7AKYkc-MzeiUGexqlYQIqJxyc_8xM
-
+@token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDU3NjkwMywiZXhwIjoxNzkxMTgxNzAzfQ.je4bF-tL8RptaAe2frhGZVBy_VMD0US4W58uuLltVB8
 
 
 ### ==========================================

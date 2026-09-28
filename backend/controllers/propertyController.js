@@ -18,12 +18,26 @@ import deletePhotoFiles from '../utils/fileUtils.js';
  *     → rate limited (10 views / 24 hours per user via contactLimiter)
  *     → appends property ID to user's contacted_properties array (deduplicated)
  */
+
 export const getProperties = async (req, res, next) => {
 
     const {
-        cityId, locality, minRent, maxRent, bedrooms, bathrooms,
-        propertyType, floorNo, totalFloors, furnishing, hasParking,
-        hasLift, allowSingleMale, allowSingleFemale, allowFamily, sort
+        cityId,
+        locality,
+        minRent,
+        maxRent,
+        bedrooms,
+        bathrooms,
+        propertyType,
+        floorNo,
+        totalFloors,
+        furnishing,
+        hasParking,
+        hasLift,
+        allowSingleMale,
+        allowSingleFemale,
+        allowFamily,
+        sort
     } = req.validatedQuery;
 
     const conditions = ['1 = 1'];
@@ -32,55 +46,55 @@ export const getProperties = async (req, res, next) => {
     // --- Standard Filters ---
     if (cityId) {
         values.push(cityId);
-        conditions.push(`p.city_id = $${values.length}`);
+        conditions.push(`city_id = $${values.length}`);
     }
     if (locality) {
         values.push(`%${locality}%`);
-        conditions.push(`p.locality ILIKE $${values.length}`);
+        conditions.push(`locality ILIKE $${values.length}`);
     }
     if (minRent !== undefined) {
         values.push(minRent);
-        conditions.push(`p.rent >= $${values.length}`);
+        conditions.push(`rent >= $${values.length}`);
     }
     if (maxRent !== undefined) {
         values.push(maxRent);
-        conditions.push(`p.rent <= $${values.length}`);
+        conditions.push(`rent <= $${values.length}`);
     }
 
     // --- Multi-Select Array Filters (Using ANY) ---
     if (bedrooms && bedrooms.length > 0) {
         values.push(bedrooms);
-        conditions.push(`p.bedrooms = ANY($${values.length})`);
+        conditions.push(`bedrooms = ANY($${values.length})`);
     }
     if (bathrooms && bathrooms.length > 0) {
         values.push(bathrooms);
-        conditions.push(`p.bathrooms = ANY($${values.length})`);
+        conditions.push(`bathrooms = ANY($${values.length})`);
     }
     if (propertyType && propertyType.length > 0) {
         values.push(propertyType);
-        conditions.push(`p.property_type = ANY($${values.length})`);
+        conditions.push(`property_type = ANY($${values.length})`);
     }
     if (furnishing && furnishing.length > 0) {
         values.push(furnishing);
-        conditions.push(`p.furnishing = ANY($${values.length})`);
+        conditions.push(`furnishing = ANY($${values.length})`);
     }
 
     // --- Exact Match Filters ---
     if (floorNo !== undefined) {
         values.push(floorNo);
-        conditions.push(`p.floor_no = $${values.length}`);
+        conditions.push(`floor_no = $${values.length}`);
     }
     if (totalFloors !== undefined) {
         values.push(totalFloors);
-        conditions.push(`p.total_floors = $${values.length}`);
+        conditions.push(`total_floors = $${values.length}`);
     }
     if (hasParking !== undefined) {
         values.push(hasParking);
-        conditions.push(`p.has_parking = $${values.length}`);
+        conditions.push(`has_parking = $${values.length}`);
     }
     if (hasLift !== undefined) {
         values.push(hasLift);
-        conditions.push(`p.has_lift = $${values.length}`);
+        conditions.push(`has_lift = $${values.length}`);
     }
 
     // --- Tenant Preferences (Grouped as OR logic) ---
@@ -88,13 +102,13 @@ export const getProperties = async (req, res, next) => {
     const tenantConditions = [];
 
     if (allowSingleMale === true) {
-        tenantConditions.push('p.allow_single_male = true');
+        tenantConditions.push('allow_single_male = true');
     }
     if (allowSingleFemale === true) {
-        tenantConditions.push('p.allow_single_female = true');
+        tenantConditions.push('allow_single_female = true');
     }
     if (allowFamily === true) {
-        tenantConditions.push('p.allow_family = true');
+        tenantConditions.push('allow_family = true');
     }
 
     // If any tenant filters were selected, group them in parentheses
@@ -102,25 +116,23 @@ export const getProperties = async (req, res, next) => {
         conditions.push(`(${tenantConditions.join(' OR ')})`);
     }
 
-    let orderBy = 'ORDER BY p.created_at DESC';
+    let orderBy = 'ORDER BY created_at DESC';
 
     if (sort === 'rent_asc') {
-        orderBy = 'ORDER BY p.rent ASC';
+        orderBy = 'ORDER BY rent ASC';
     }
 
     if (sort === 'rent_desc') {
-        orderBy = 'ORDER BY p.rent DESC';
+        orderBy = 'ORDER BY rent DESC';
     }
 
     if (sort === 'newest') {
-        orderBy = 'ORDER BY p.created_at DESC';
+        orderBy = 'ORDER BY created_at DESC';
     }
 
     const query = `
-        SELECT
-            p.*,
-            c.name AS city_name
-        FROM properties p
+        SELECT *
+        FROM properties
         WHERE ${conditions.join(' AND ')}
         ${orderBy}
         LIMIT 200;
@@ -140,16 +152,15 @@ export const getProperties = async (req, res, next) => {
     });
 };
 
-
 export const getProperty = async (req, res, next) => {
 
+    const { id } = req.params;
+
     const { rows } = await pool.query(`
-        SELECT
-            p.*,
-            c.name AS city_name
-        FROM properties p
-        WHERE p.id = $1
-    `, [req.params.id]);
+        SELECT *
+        FROM properties
+        WHERE id = $1
+    `, [id]);
 
     if (rows.length === 0) {
         return next(new CustomError(404, 'Property not found'));
@@ -161,18 +172,19 @@ export const getProperty = async (req, res, next) => {
     res.status(200).json({ property });
 };
 
+// GET api/v1/properties/:id/contact
 export const getPropertyContact = async (req, res, next) => {
 
     const { id } = req.params;
     const userId = req.user.id;
 
-    // 1. Fetch the owner's details
+    // 1. Fetch the property's owner contact details
     const { rows } = await pool.query(`
         SELECT
             u.name AS owner_name,
             u.phone AS owner_phone
-        FROM properties p
-        JOIN users u ON p.owner_id = u.id
+        FROM users u
+        JOIN properties p ON p.owner_id = u.id
         WHERE p.id = $1
     `, [id]);
 
@@ -180,13 +192,17 @@ export const getPropertyContact = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    // 2. Append property ID to user's history array (The Fix)
-    // ANY() logic ensures we don't add duplicates if user contact the same owner twice
+    // 2. Record this property in the user's contact history
+    // The composite primary key + ON CONFLICT prevents duplicate
+    // entries when the user contacts the same property again.
     await pool.query(`
-        UPDATE users
-        SET contacted_properties = array_append(contacted_properties, $1)
-        WHERE id = $2 AND NOT ($1 = ANY(contacted_properties))
-    `, [id, userId]);
+        INSERT INTO contacted_properties (
+            user_id,
+            property_id
+        )
+        VALUES ($1, $2)
+        ON CONFLICT (user_id, property_id) DO NOTHING
+    `, [userId, id]);
 
     res.status(200).json({
         owner: rows[0]
@@ -194,7 +210,6 @@ export const getPropertyContact = async (req, res, next) => {
 };
 
 export const createProperty = async (req, res, next) => {
-
     const ownerId = req.user.id;
 
     const {
@@ -206,18 +221,20 @@ export const createProperty = async (req, res, next) => {
         bedrooms,
         bathrooms,
         floorNo,
+        totalFloors,
         furnishing,
         propertyType,
-        hasParking,
-        hasLift,
-        photos
+        hasParking = false,
+        hasLift = false,
+        allowSingleMale = false,
+        allowSingleFemale = false,
+        allowFamily = false,
+        photos = []
     } = req.body;
-
 
     // Generate title from the final property values
     const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
-    const title =
-        `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
+    const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
 
     const { rows } = await pool.query(`
         INSERT INTO properties (
@@ -231,15 +248,19 @@ export const createProperty = async (req, res, next) => {
             bedrooms,
             bathrooms,
             floor_no,
+            total_floors,
             furnishing,
             property_type,
             has_parking,
             has_lift,
+            allow_single_male,
+            allow_single_female,
+            allow_family,
             photos
         )
         VALUES (
-            $1, $2, $3, $4, $5, $6, $7, $8,
-            $9, $10, $11, $12, $13, $14, $15
+            $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+            $11, $12, $13, $14, $15, $16, $17, $18, $19
         )
         RETURNING *;
     `, [
@@ -253,11 +274,15 @@ export const createProperty = async (req, res, next) => {
         bedrooms,
         bathrooms,
         floorNo,
+        totalFloors,
         furnishing,
         propertyType,
         hasParking,
         hasLift,
-        photos || []
+        allowSingleMale,
+        allowSingleFemale,
+        allowFamily,
+        photos
     ]);
 
     res.status(201).json({
@@ -265,9 +290,7 @@ export const createProperty = async (req, res, next) => {
     });
 };
 
-
 export const updateProperty = async (req, res, next) => {
-
     const { id } = req.params;
     const userId = req.user.id;
 
@@ -283,49 +306,44 @@ export const updateProperty = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    // Only the owner can update the property
     if (existing.owner_id !== userId) {
         return next(new CustomError(403, 'You can only update your own properties'));
     }
 
+    /** Nullish Coalescing (??): The code pairs camelCase request keys
+     *  with existing snake_case database columns
+     *  (e.g., req.body.totalFloors ?? existing.total_floors).
+     *  This guarantees that partial updates
+     *  (e.g., updating only rent) will not wipe out existing flags
+     *  or violate chk_tenant_preference
+     *  Preserve existing database values when field is not provided in update body
+     */
     const cityId = req.body.cityId ?? existing.city_id;
-
     const locality = req.body.locality ?? existing.locality;
-
     const rent = req.body.rent ?? existing.rent;
-
     const deposit = req.body.deposit ?? existing.deposit;
-
     const carpetAreaSqft = req.body.carpetAreaSqft ?? existing.carpet_area_sqft;
-
     const bedrooms = req.body.bedrooms ?? existing.bedrooms;
-
     const bathrooms = req.body.bathrooms ?? existing.bathrooms;
-
     const floorNo = req.body.floorNo ?? existing.floor_no;
-
+    const totalFloors = req.body.totalFloors ?? existing.total_floors;
     const furnishing = req.body.furnishing ?? existing.furnishing;
-
     const propertyType = req.body.propertyType ?? existing.property_type;
-
     const hasParking = req.body.hasParking ?? existing.has_parking;
-
     const hasLift = req.body.hasLift ?? existing.has_lift;
-
+    const allowSingleMale = req.body.allowSingleMale ?? existing.allow_single_male;
+    const allowSingleFemale = req.body.allowSingleFemale ?? existing.allow_single_female;
+    const allowFamily = req.body.allowFamily ?? existing.allow_family;
     const photos = req.body.photos ?? existing.photos;
-
 
     // Generate title from the final property values
     const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
-    const title =
-        `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
-
+    const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
 
     // Find photos that were removed from the property
     const removedPhotos = existing.photos.filter(
         photo => !photos.includes(photo)
     );
-
 
     // Update database
     const updateResult = await pool.query(`
@@ -340,12 +358,16 @@ export const updateProperty = async (req, res, next) => {
             bedrooms = $7,
             bathrooms = $8,
             floor_no = $9,
-            furnishing = $10,
-            property_type = $11,
-            has_parking = $12,
-            has_lift = $13,
-            photos = $14
-        WHERE id = $15
+            total_floors = $10,
+            furnishing = $11,
+            property_type = $12,
+            has_parking = $13,
+            has_lift = $14,
+            allow_single_male = $15,
+            allow_single_female = $16,
+            allow_family = $17,
+            photos = $18
+        WHERE id = $19
         RETURNING *;
     `, [
         cityId,
@@ -357,24 +379,25 @@ export const updateProperty = async (req, res, next) => {
         bedrooms,
         bathrooms,
         floorNo,
+        totalFloors,
         furnishing,
         propertyType,
         hasParking,
         hasLift,
+        allowSingleMale,
+        allowSingleFemale,
+        allowFamily,
         photos,
         id
     ]);
 
-
     // Delete physical files no longer used by the property
     await deletePhotoFiles(removedPhotos);
-
 
     res.status(200).json({
         property: updateResult.rows[0]
     });
 };
-
 
 export const deleteProperty = async (req, res, next) => {
 
@@ -398,8 +421,7 @@ export const deleteProperty = async (req, res, next) => {
         return next(new CustomError(
             403,
             'You can only delete your own properties'
-        )
-        );
+        ));
     }
 
     // Delete property from database
