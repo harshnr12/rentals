@@ -33,6 +33,16 @@ Content-Type: application/json
     "password": "password123",
     "phone": "9876543210"
 }
+### Duplicate Email Signup
+POST {{baseUrl}}/auth/signup
+Content-Type: application/json
+
+{
+    "name": "Harsh 5",
+    "email": "harsh@example.com",
+    "password": "test1235",
+    "phone": "6876543210"
+}
 
 ### Login
 # Copy the returned token into @token above

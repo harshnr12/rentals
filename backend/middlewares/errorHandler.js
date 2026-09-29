@@ -15,16 +15,45 @@ const errorHandler = (error, req, res, next) => {
         });
     }
 
-    // 2. Process standard custom errors
-    const statusCode = error.statusCode || 500;
-    const message = error.message || "Internal server error";
+    // 2. Catch PostgreSQL Unique Constraint Violations (Code 23505)
+    // The database enforces uniqueness even if two requests pass
+    // the controller's existence check at the same time.
+    //
+    // Examples:
+    // - Duplicate user email
+    // - Duplicate favorite (same user + property)
+    //
+    // Contact history does not reach this handler for duplicates because
+    // its INSERT uses ON CONFLICT (user_id, property_id) DO NOTHING.
+    if (error.code === '23505') {
 
-    // 3. Only log actual server crashes, hide standard client mistakes
-    if (statusCode === 500) {
-        console.error("Server Error:", error);
+        if (error.constraint === 'users_email_key') {
+            return res.status(409).json({
+                message: 'Email already registered'
+            });
+        }
+
+        return res.status(409).json({
+            message: 'The request conflicts with an existing record'
+        });
     }
 
-    // 4. Send final response
+    // 3. Process standard custom errors
+    const statusCode = error.statusCode || 500;
+
+    // Never expose unexpected internal errors to the client.
+    // Detailed error information is logged on the server instead.
+    const message =
+        statusCode === 500
+            ? 'Internal server error'
+            : error.message || 'Request failed';
+
+    // 4. Only log unexpected server errors
+    if (statusCode === 500) {
+        console.error('Server Error:', error);
+    }
+
+    // 5. Send final response
     res.status(statusCode).json({ message });
 };
 

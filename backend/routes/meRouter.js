@@ -2,9 +2,9 @@ import express from 'express';
 import protect from '../middlewares/auth.js';
 import favoriteRouter from './favoriteRouter.js';
 import {
-    getMyProperties,
+    getMyListedProperties,
     getMe,
-    getContactedProperties
+    getMyContactedProperties
 } from '../controllers/meController.js';
 
 const router = express.Router();
@@ -14,8 +14,8 @@ router.use(protect);
 
 router.use('/favorites', favoriteRouter);
 
-router.get("/properties", getMyProperties);
-router.get("/contacted", getContactedProperties);
+router.get("/properties", getMyListedProperties);
+router.get("/contacted", getMyContactedProperties);
 router.get('/', getMe);
 
 
