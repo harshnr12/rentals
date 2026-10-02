@@ -265,7 +265,8 @@ export const updateProperty = async (req, res, next) => {
     // by normalizePropertyUpdate middleware.
     const existing = req.existingProperty;
 
-    // req.body has already been normalized and validated.
+    // req.body has already bee// Only delete files in this user's upload namespace (user_<id>_...).
+    // Seed/shared images are never unlinked, since other listings may use them.n normalized and validated.
     const {
         cityId,
         locality,
@@ -350,8 +351,9 @@ export const updateProperty = async (req, res, next) => {
         id
     ]);
 
-    // Delete physical files no longer used by the property.
-    await deletePhotoFiles(removedPhotos);
+    // Delete removed photos from disk, but only the user's own uploads.
+    // Seed/shared images stay, since other listings may still reference them.
+    await deletePhotoFiles(removedPhotos.filter(p => p.startsWith(prefix)));
 
     res.status(200).json({
         property: updateResult.rows[0]
@@ -389,8 +391,10 @@ export const deleteProperty = async (req, res, next) => {
         [id]
     );
 
-    // Delete all physical photos belonging to the property
-    await deletePhotoFiles(property.photos);
+    // Only delete files in this user's upload namespace (user_<id>_...).
+    // Seed/shared images are never unlinked, since other listings may use them.
+    const prefix = `/images/user_${userId}_`;
+    await deletePhotoFiles(property.photos.filter(p => p.startsWith(prefix)));
 
     res.status(200).json({
         message: 'Property deleted successfully'

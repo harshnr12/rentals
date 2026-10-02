@@ -6,7 +6,7 @@
 
 # Change this when testing another property
 # @propertyId = 20
-@propertyId = 121
+@propertyId = 122
 
 # Paste the JWT from Login response here
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDU3NjkwMywiZXhwIjoxNzkxMTgxNzAzfQ.je4bF-tL8RptaAe2frhGZVBy_VMD0US4W58uuLltVB8
@@ -240,9 +240,9 @@ Content-Type: application/json
 
 {
     "photos": [
-        "/images/user_121_1790901541086.jpg",
-        "/images/user_121_1790901541091.webp"
-    ]
+    "/images/user_121_1790909766827_e6a68c2c.jpg",
+    "/images/user_121_1790909766836_2843ae45.webp"
+  ]
 }
 
 ### Delete property (Must be owner)
