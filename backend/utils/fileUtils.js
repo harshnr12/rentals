@@ -16,7 +16,7 @@ const deleteFile = async (filePath) => {
         if (error.code === 'ENOENT') {
             console.log(`File does not exist: ${filePath}`);
         } else {
-            throw error;
+            console.error(`Failed to delete ${filePath}:`, error);
         }
     }
 };

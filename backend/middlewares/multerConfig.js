@@ -1,5 +1,6 @@
 import multer from 'multer';
 import path from 'path';
+import crypto from 'node:crypto';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -9,7 +10,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
         const userId = req.user?.id ?? 'guest';
-        const uniqueName = `user_${userId}_${Date.now()}${ext}`;
+        const uniqueName = `user_${userId}_${Date.now()}_${crypto.randomBytes(4).toString('hex')}${ext}`;
         cb(null, uniqueName);
     }
 });

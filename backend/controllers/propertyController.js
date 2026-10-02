@@ -4,11 +4,11 @@ import deletePhotoFiles from '../utils/fileUtils.js';
 
 /**
  * GET /properties
- *     → property listings + city name
+ *     → property listings
  *     → no owner information (name, phone, ID)
  *
  * GET /properties/:id
- *     → property details + city name
+ *     → property details
  *     → no owner information (name, phone, ID)
  *
  *
@@ -195,6 +195,11 @@ export const createProperty = async (req, res, next) => {
         photos = []
     } = req.body;
 
+    const prefix = `/images/user_${req.user.id}_`;
+    if (photos.some(p => !p.startsWith(prefix))) {
+        return next(new CustomError(400, 'Photos must be uploaded by you'));
+    }
+
     // Generate title from the final property values
     const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
     const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
@@ -255,60 +260,51 @@ export const createProperty = async (req, res, next) => {
 
 export const updateProperty = async (req, res, next) => {
     const { id } = req.params;
-    const userId = req.user.id;
 
-    // Find existing property
-    const { rows } = await pool.query(
-        'SELECT * FROM properties WHERE id = $1',
-        [id]
-    );
+    // Property was already fetched and ownership was already verified
+    // by normalizePropertyUpdate middleware.
+    const existing = req.existingProperty;
 
-    const existing = rows[0];
+    // req.body has already been normalized and validated.
+    const {
+        cityId,
+        locality,
+        rent,
+        deposit,
+        carpetAreaSqft,
+        bedrooms,
+        bathrooms,
+        floorNo,
+        totalFloors,
+        furnishing,
+        propertyType,
+        hasParking,
+        hasLift,
+        allowSingleMale,
+        allowSingleFemale,
+        allowFamily,
+        photos
+    } = req.body;
 
-    if (!existing) {
-        return next(new CustomError(404, 'Property not found'));
+    // Only photos newly added in this request must belong to the owner/caller
+    const prefix = `/images/user_${req.user.id}_`;
+    const addedPhotos = photos.filter(p => !existing.photos.includes(p));
+
+    if (addedPhotos.some(p => !p.startsWith(prefix))) {
+        return next(new CustomError(400, 'Photos must be uploaded by you'));
     }
 
-    if (existing.owner_id !== userId) {
-        return next(new CustomError(403, 'You can only update your own properties'));
-    }
-
-    /** Nullish Coalescing (??): The code pairs camelCase request keys
-     *  with existing snake_case database columns
-     *  (e.g., req.body.totalFloors ?? existing.total_floors).
-     *  This guarantees that partial updates
-     *  (e.g., updating only rent) will not wipe out existing flags
-     *  or violate chk_tenant_preference
-     *  Preserve existing database values when field is not provided in update body
-     */
-    const cityId = req.body.cityId ?? existing.city_id;
-    const locality = req.body.locality ?? existing.locality;
-    const rent = req.body.rent ?? existing.rent;
-    const deposit = req.body.deposit ?? existing.deposit;
-    const carpetAreaSqft = req.body.carpetAreaSqft ?? existing.carpet_area_sqft;
-    const bedrooms = req.body.bedrooms ?? existing.bedrooms;
-    const bathrooms = req.body.bathrooms ?? existing.bathrooms;
-    const floorNo = req.body.floorNo ?? existing.floor_no;
-    const totalFloors = req.body.totalFloors ?? existing.total_floors;
-    const furnishing = req.body.furnishing ?? existing.furnishing;
-    const propertyType = req.body.propertyType ?? existing.property_type;
-    const hasParking = req.body.hasParking ?? existing.has_parking;
-    const hasLift = req.body.hasLift ?? existing.has_lift;
-    const allowSingleMale = req.body.allowSingleMale ?? existing.allow_single_male;
-    const allowSingleFemale = req.body.allowSingleFemale ?? existing.allow_single_female;
-    const allowFamily = req.body.allowFamily ?? existing.allow_family;
-    const photos = req.body.photos ?? existing.photos;
-
-    // Generate title from the final property values
-    const propertyTypeTitle = propertyType === 'villa' ? 'Villa' : 'Apartment';
+    // Generate title from the final property values.
+    const propertyTypeTitle =
+        propertyType === 'villa' ? 'Villa' : 'Apartment';
     const title = `${bedrooms} BHK ${propertyTypeTitle} in ${locality}`;
 
-    // Find photos that were removed from the property
+    // Find photos that were removed from the property.
     const removedPhotos = existing.photos.filter(
         photo => !photos.includes(photo)
     );
 
-    // Update database
+    // Update database.
     const updateResult = await pool.query(`
         UPDATE properties
         SET
@@ -354,7 +350,7 @@ export const updateProperty = async (req, res, next) => {
         id
     ]);
 
-    // Delete physical files no longer used by the property
+    // Delete physical files no longer used by the property.
     await deletePhotoFiles(removedPhotos);
 
     res.status(200).json({

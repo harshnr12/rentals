@@ -5,7 +5,8 @@
 @baseUrl = {{host}}/api/v1
 
 # Change this when testing another property
-@propertyId = 20
+# @propertyId = 20
+@propertyId = 121
 
 # Paste the JWT from Login response here
 @token = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjEyMSIsImlhdCI6MTc5MDU3NjkwMywiZXhwIjoxNzkxMTgxNzAzfQ.je4bF-tL8RptaAe2frhGZVBy_VMD0US4W58uuLltVB8
@@ -232,6 +233,18 @@ Content-Type: application/json
     "rent": 22000
 }
 
+### Update only photos --First upload using {{baseUrl}}/upload and reuturned photoUrls pass as photos in body
+PATCH {{baseUrl}}/properties/{{propertyId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "photos": [
+        "/images/user_121_1790901541086.jpg",
+        "/images/user_121_1790901541091.webp"
+    ]
+}
+
 ### Delete property (Must be owner)
 DELETE {{baseUrl}}/properties/{{propertyId}}
 Authorization: Bearer {{token}}
@@ -248,11 +261,31 @@ Authorization: Bearer {{token}}
 Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
 
 ------WebKitFormBoundary7MA4YWxkTrZu0gW
-Content-Disposition: form-data; name="photos"; filename="demo-upload.jpg"
+Content-Disposition: form-data; name="photos"; filename="how-to-make-a-small-mumbai-house-look-bigger.jpg"
 Content-Type: image/jpeg
 
-< ./public/images/1_1.jpg
+< /home/harsh/Desktop/how-to-make-a-small-mumbai-house-look-bigger.jpg
 ------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
+### Upload two images for the same property
+POST {{baseUrl}}/upload
+Authorization: Bearer {{token}}
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photos"; filename="how-to-make-a-small-mumbai-house-look-bigger.jpg"
+Content-Type: image/jpeg
+
+< /home/harsh/Desktop/how-to-make-a-small-mumbai-house-look-bigger.jpg
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="photos"; filename="RA6HzK1LyaPx2jpDPHYTIZ2omU.webp"
+Content-Type: image/webp
+
+< /home/harsh/Desktop/RA6HzK1LyaPx2jpDPHYTIZ2omU.webp
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+
 
 ### Test image serving (Static Files)
 # Replace filename with an actual file in public/images

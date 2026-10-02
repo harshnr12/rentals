@@ -557,10 +557,11 @@ const PROPERTY_TEMPLATES = [
 
 const photoSets = [
     ['1_1.jpg', '1_2.jpg', '1_3.jpg'],
-    ['2_1.jpg', '2_2.jpg'],
+    ['2_1.jpg', '2_2.jpg', '2_3.webp'],
     ['3_1.jpg', '3_2.jpg'],
     ['4_1.jpg', '4_2.jpg'],
-    ['5_1.jpg', '5_2.jpg']
+    ['5_1.jpg', '5_2.jpg'],
+    ['6_1.jpg', '6_2.jpg']
 ];
 
 // ============================================================================
@@ -741,8 +742,7 @@ async function seed() {
                         filename => `/images/${filename}`
                     );
 
-                    const isVilla =
-                        template.bhk === 4;
+                    const isVilla = template.bhk === 4;
 
                     // Keep seeded titles consistent with createProperty().
                     // Example: "2 BHK Apartment in Rohini".

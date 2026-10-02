@@ -18,10 +18,10 @@ export const validateBody = (req, res, next) => {
 
     if (!schema) return next();
 
-    const { error, value } = schema.validate(req.body, {
-        abortEarly: false, // Finds all errors
-        stripUnknown: true
-    });
+    const { error, value } = schema.validate(
+        req.body,
+        { abortEarly: false } // Finds all errors
+    );
 
     if (error) {
         // Maps all Joi errors into a single comma-separated string

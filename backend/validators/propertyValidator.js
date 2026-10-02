@@ -34,7 +34,10 @@ export const createPropertySchema = Joi.object({
     allowFamily: Joi.boolean().default(false),
 
     // --- Optional Media (Defaults to empty array) ---
-    photos: Joi.array().items(Joi.string().trim()).default([])
+    photos: Joi.array().items(
+        Joi.string().trim().pattern(/^\/images\/[\w.-]+$/)
+    ).default([])
+
 }).custom((value, helpers) => {
     // Enforce domain logic: At least one tenant type must be allowed
     if (!value.allowSingleMale && !value.allowSingleFemale && !value.allowFamily) {

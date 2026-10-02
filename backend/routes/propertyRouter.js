@@ -1,41 +1,23 @@
 import express from 'express';
 import protect from '../middlewares/auth.js';
-import {
-    validateBody,
-    validateQuery,
-    validateParams
-} from "../middlewares/validate.js";
-import {
-    getProperties,
-    getProperty,
-    createProperty,
-    updateProperty,
-    deleteProperty,
+import { validateBody, validateQuery } from "../middlewares/validate.js";
+import { getProperties, createProperty } from '../controllers/propertyController.js';
+import propertyIdRouter from './propertyIdRouter.js';
 
-} from '../controllers/propertyController.js';
-import contactRouter from './contactRouter.js';
 const router = express.Router();
 
-// Validate every :id parameter in this router
-router.param('id', validateParams);
 
-// Public Routes
+// Public collection route
 router.get("/", validateQuery, getProperties);
-router.get("/:id", getProperty);
 
-// Protected Routes after this Point
+// All routes for a specific property
+router.use('/:id', propertyIdRouter);
+
+// Protected collection route
 router.use(protect);
 
-// Contact route — any logged-in user can view owner contact
-router.use("/:id/contact", contactRouter);
+// Validate property creation
+router.post("/", validateBody, createProperty);
 
-// Delete does not need body validation
-router.delete('/:id', deleteProperty);
-
-// Body validation for property creation/update
-router.use(validateBody);
-
-router.post("/", createProperty);
-router.patch('/:id', updateProperty);
 
 export default router;
