@@ -1,21 +1,24 @@
-import { createContext, useEffect, useState } from 'react';
-import { getConfig } from '../services/api';
+import { useEffect, useState } from 'react';
 
-// Application configuration
-export const ConfigContext = createContext(null);
+import ConfigContext from '../context/ConfigContext.js';
+import { getConfig } from '../services/api.js';
 
-export const ConfigProvider = ({ children }) => {
+function ConfigProvider({ children }) {
+
+    // Configuration state with lazy initialization from localStorage
     const [config, setConfig] = useState(() => {
         const savedConfig = localStorage.getItem('config');
-
         return savedConfig ? JSON.parse(savedConfig) : null;
     });
 
-    const [loading, setLoading] = useState(!config);
+    // Load only when configuration is not already cached
+    const [loading, setLoading] = useState(config === null);
+
+    // Error from configuration request
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        if (config) {
+        if (config !== null) {
             return;
         }
 
@@ -28,11 +31,11 @@ export const ConfigProvider = ({ children }) => {
 
             } catch (error) {
                 setError(error);
+
             } finally {
                 setLoading(false);
             }
         };
-
         loadConfig();
     }, []);
 
@@ -48,3 +51,5 @@ export const ConfigProvider = ({ children }) => {
         </ConfigContext.Provider>
     );
 };
+
+export default ConfigProvider;

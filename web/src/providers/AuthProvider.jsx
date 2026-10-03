@@ -1,16 +1,16 @@
-import { createContext, useState } from 'react';
+import { useState } from 'react';
 
+import AuthContext from '../context/AuthContext';
 import { login as loginApi } from '../services/api';
 
-// Authentication state
-export const AuthContext = createContext(null);
+function AuthProvider({ children }) {
 
-export const AuthProvider = ({ children }) => {
+    // Authentication state with lazy initialization from localStorage
     const [token, setToken] = useState(
         () => localStorage.getItem('token')
     );
 
-    const isLoggedIn = Boolean(token);
+    const isLoggedIn = token !== null;
 
     const login = async (credentials) => {
         const data = await loginApi(credentials);
@@ -29,7 +29,6 @@ export const AuthProvider = ({ children }) => {
     return (
         <AuthContext.Provider
             value={{
-                token,
                 isLoggedIn,
                 login,
                 logout
@@ -39,3 +38,5 @@ export const AuthProvider = ({ children }) => {
         </AuthContext.Provider>
     );
 };
+
+export default AuthProvider;

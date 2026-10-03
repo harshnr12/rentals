@@ -1,22 +1,31 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
-import { AuthContext } from './AuthContext.jsx';
+import AuthContext from '../context/AuthContext.js';
+import UserDataContext from '../context/UserDataContext.js';
 
 import { getCurrentUser } from '../services/api.js';
 
-// Authenticated user's shared application data
-export const UserDataContext = createContext(null);
+// Shared data for the authenticated user
+function UserDataProvider({ children }) {
 
-export const UserDataProvider = ({ children }) => {
     const { isLoggedIn } = useContext(AuthContext);
 
+    // User profile loaded from the backend
     const [currentUser, setCurrentUser] = useState(null);
-    const [favoriteIds, setFavoriteIds] = useState(new Set());
-    const [contactedIds, setContactedIds] = useState(new Set());
 
+    // Property IDs favorited by the current user
+    const [favoriteIds, setFavoriteIds] = useState(() => new Set());
+
+    // Property IDs whose owners the current user has contacted
+    const [contactedIds, setContactedIds] = useState(() => new Set());
+
+    // Loading state for user-data request
     const [loading, setLoading] = useState(false);
+
+    // Error from user-data request
     const [error, setError] = useState(null);
 
+    // Load or clear user data when login state changes
     useEffect(() => {
         if (!isLoggedIn) {
             setCurrentUser(null);
@@ -24,7 +33,6 @@ export const UserDataProvider = ({ children }) => {
             setContactedIds(new Set());
             setLoading(false);
             setError(null);
-
             return;
         }
 
@@ -34,7 +42,6 @@ export const UserDataProvider = ({ children }) => {
 
             try {
                 const data = await getCurrentUser();
-
                 const {
                     favorited_property_ids = [],
                     contacted_property_ids = [],
@@ -52,36 +59,33 @@ export const UserDataProvider = ({ children }) => {
                 setLoading(false);
             }
         };
-
         loadUserData();
     }, [isLoggedIn]);
 
     const addFavorite = (propertyId) => {
         setFavoriteIds((ids) => {
+            // Create a new Set so React gets a new state reference
             const updatedIds = new Set(ids);
-
             updatedIds.add(propertyId);
-
             return updatedIds;
         });
     };
 
     const removeFavorite = (propertyId) => {
         setFavoriteIds((ids) => {
+            // Create a new Set so React gets a new state reference
             const updatedIds = new Set(ids);
-
             updatedIds.delete(propertyId);
-
             return updatedIds;
         });
+
     };
 
     const addContacted = (propertyId) => {
         setContactedIds((ids) => {
+            // Create a new Set so React gets a new state reference
             const updatedIds = new Set(ids);
-
             updatedIds.add(propertyId);
-
             return updatedIds;
         });
     };
@@ -103,3 +107,5 @@ export const UserDataProvider = ({ children }) => {
         </UserDataContext.Provider>
     );
 };
+
+export default UserDataProvider;
