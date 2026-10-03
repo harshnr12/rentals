@@ -4,7 +4,8 @@ import './index.css';
 import App from './App.jsx';
 
 import { AuthProvider } from './context/AuthContext.jsx';
-
+import { ConfigProvider } from './context/ConfigContext.jsx';
+import { UserDataProvider } from './context/UserDataContext.jsx';
 
 createRoot(document.getElementById('root'))
     .render(
