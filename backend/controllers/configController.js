@@ -63,7 +63,7 @@ export const getConfigData = async (req, res, next) => {
             },
 
             // 3. CROSS-FIELD CONSTRAINTS: Complex domain logic
-            crossFieldConstraints: [
+            crossFieldValidations: [
                 {
                     ruleType: 'less_than_or_equal',
                     field: 'floorNo',
