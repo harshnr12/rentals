@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
-
 import ConfigContext from '../context/ConfigContext.js';
 import { getConfig } from '../services/api.js';
 
 function ConfigProvider({ children }) {
-
     // Configuration state with lazy initialization from localStorage
     const [config, setConfig] = useState(() => {
         const savedConfig = localStorage.getItem('config');
@@ -21,17 +19,13 @@ function ConfigProvider({ children }) {
         if (config !== null) {
             return;
         }
-
         const loadConfig = async () => {
             try {
                 const data = await getConfig();
-
                 localStorage.setItem('config', JSON.stringify(data));
                 setConfig(data);
-
             } catch (error) {
                 setError(error);
-
             } finally {
                 setLoading(false);
             }
@@ -45,8 +39,7 @@ function ConfigProvider({ children }) {
                 config,
                 loading,
                 error
-            }}
-        >
+            }}>
             {children}
         </ConfigContext.Provider>
     );

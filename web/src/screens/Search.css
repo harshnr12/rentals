@@ -1,0 +1,118 @@
+/* Layout container */
+.search {
+    display: flex;
+    gap: 24px;
+    padding: 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* Sidebar */
+.search aside {
+    width: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    height: fit-content;
+}
+
+.search aside h3 {
+    color: var(--primary);
+    margin-bottom: 16px;
+}
+
+.search form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+/* Form controls */
+.search label {
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 500;
+}
+
+.search input[type="text"],
+.search input[type="number"],
+.search select {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg);
+}
+
+.checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin: 0;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+}
+
+.checkbox-group label {
+    margin: 0;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-transform: capitalize;
+}
+
+.search button {
+    margin-top: 12px;
+    padding: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.search button:hover {
+    background: var(--primary-hover);
+}
+
+/* Results section */
+.search section {
+    flex: 1;
+}
+
+.search section h2 {
+    color: var(--primary);
+    margin-bottom: 20px;
+}
+
+.properties-list {
+    display: flex;
+    flex-wrap: wrap;
+
+    /* 20px */
+    gap: 1.25rem;
+}
+
+.properties-list>* {
+    /* min base width: 280px */
+    flex: 1 1 17.5rem;
+
+    /* prevents a single card from stretching: ~352px */
+    max-width: 22rem;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .search {
+        flex-direction: column;
+    }
+
+    .search aside {
+        width: 100%;
+    }
+}

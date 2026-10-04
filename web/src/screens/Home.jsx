@@ -6,7 +6,6 @@ import PropertyCard from '../components/PropertyCard.jsx';
 import './Home.css';
 
 function Home() {
-
     const { config, loading: configLoading, error: configError } = useContext(ConfigContext);
     const navigate = useNavigate();
     const [properties, setProperties] = useState([]);
@@ -20,9 +19,9 @@ function Home() {
             setError(null);
             try {
                 const data = await getProperties();
-                setProperties(data.properties);
-            } catch (error) {
-                setError(error);
+                setProperties(data.properties || data);
+            } catch (err) {
+                setError(err);
             } finally {
                 setLoading(false);
             }
@@ -33,8 +32,9 @@ function Home() {
     function handleCityChange(event) {
         const cityId = event.target.value;
         setSelectedCity(cityId);
+
         if (cityId) {
-            navigate(`/properties?city=${cityId}`);
+            navigate(`/properties?cityId=${cityId}`);
         }
     }
 
@@ -55,6 +55,7 @@ function Home() {
     }
 
     const cities = config.options.cities;
+
     function getCityName(cityId) {
         const city = cities.find((city) => city.id === cityId);
         return city ? city.name : '';
@@ -63,37 +64,26 @@ function Home() {
     return (
         <main className="home">
             <section className="home-header">
-                <h1>
-                    Welcome to Rentals!
-                </h1>
-                <p>
-                    Find a place that fits your needs.
-                </p>
-                <label htmlFor="city">
-                    Choose a city
-                </label>
-                <select
-                    id="city"
-                    value={selectedCity}
-                    onChange={handleCityChange}
-                >
-                    <option value="">
-                        All Cities
-                    </option>
-                    {cities.map((city) => (
-                        <option
-                            key={city.id}
-                            value={city.id}
-                        >
-                            {city.name}
-                        </option>
-                    ))}
-                </select>
+                <div>
+                    <h1>Welcome to Rentals!</h1>
+                    <p>Find a place that fits your needs.</p>
+                </div>
+                {/* City dropdown placed on the right */}
+                <div className="city-picker">
+                    <label htmlFor="city">Choose a city</label>
+                    <select
+                        id="city"
+                        value={selectedCity}
+                        onChange={handleCityChange}>
+                        <option value="">All Cities</option>
+                        {cities.map((city) => (
+                            <option key={city.id} value={city.id}>{city.name}</option>
+                        ))}
+                    </select>
+                </div>
             </section>
             <section className="home-properties">
-                <h2>
-                    All Properties
-                </h2>
+                <h2>All Properties</h2>
                 <div className="property-list">
                     {properties.map((property) => (
                         <PropertyCard
