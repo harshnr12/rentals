@@ -1,0 +1,27 @@
+/* Card list flex container */
+.property-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+/* Card sizing using relative rem units */
+.property-list>* {
+    flex: 1 1 17.5rem;
+    max-width: 22rem;
+    min-width: 0;
+}
+
+/* Status message style */
+.property-list-message {
+    font-size: 1rem;
+    color: var(--muted);
+    padding: 1rem 0;
+}
+
+/* Mobile full width rule */
+@media (max-width: 480px) {
+    .property-list>* {
+        max-width: 100%;
+    }
+}

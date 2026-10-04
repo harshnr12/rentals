@@ -2,17 +2,19 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 import ConfigContext from '../context/ConfigContext.js';
 import { getProperties } from '../services/api.js';
-import PropertyCard from '../components/PropertyCard.jsx';
+import PropertyList from '../components/PropertyList.jsx';
 import './Home.css';
 
 function Home() {
     const { config, loading: configLoading, error: configError } = useContext(ConfigContext);
     const navigate = useNavigate();
+
     const [properties, setProperties] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [selectedCity, setSelectedCity] = useState('');
 
+    // Fetch initial property list on mount
     useEffect(() => {
         async function loadProperties() {
             setLoading(true);
@@ -29,16 +31,16 @@ function Home() {
         loadProperties();
     }, []);
 
+    // Navigate to search screen with city filter
     function handleCityChange(event) {
         const cityId = event.target.value;
         setSelectedCity(cityId);
-
         if (cityId) {
             navigate(`/properties?cityId=${cityId}`);
         }
     }
 
-    if (configLoading || loading) {
+    if (configLoading) {
         return (
             <main className="home">
                 <p>Loading...</p>
@@ -46,20 +48,15 @@ function Home() {
         );
     }
 
-    if (configError || error) {
+    if (configError) {
         return (
             <main className="home">
-                <p>Unable to load properties.</p>
+                <p>Unable to load search options.</p>
             </main>
         );
     }
 
-    const cities = config.options.cities;
-
-    function getCityName(cityId) {
-        const city = cities.find((city) => city.id === cityId);
-        return city ? city.name : '';
-    }
+    const cities = config?.options?.cities || [];
 
     return (
         <main className="home">
@@ -68,31 +65,32 @@ function Home() {
                     <h1>Welcome to Rentals!</h1>
                     <p>Find a place that fits your needs.</p>
                 </div>
-                {/* City dropdown placed on the right */}
+
                 <div className="city-picker">
                     <label htmlFor="city">Choose a city</label>
                     <select
                         id="city"
                         value={selectedCity}
-                        onChange={handleCityChange}>
+                        onChange={handleCityChange}
+                    >
                         <option value="">All Cities</option>
                         {cities.map((city) => (
-                            <option key={city.id} value={city.id}>{city.name}</option>
+                            <option key={city.id} value={city.id}>
+                                {city.name}
+                            </option>
                         ))}
                     </select>
                 </div>
             </section>
+
             <section className="home-properties">
                 <h2>All Properties</h2>
-                <div className="property-list">
-                    {properties.map((property) => (
-                        <PropertyCard
-                            key={property.id}
-                            property={property}
-                            cityName={getCityName(property.city_id)}
-                        />
-                    ))}
-                </div>
+                <PropertyList
+                    properties={properties}
+                    loading={loading}
+                    error={error}
+                    emptyMessage="No properties found."
+                />
             </section>
         </main>
     );

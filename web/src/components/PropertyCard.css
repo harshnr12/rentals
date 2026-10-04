@@ -1,3 +1,4 @@
+/* Main card shell */
 .card {
     display: flex;
     flex-direction: column;
@@ -7,20 +8,29 @@
     border-radius: var(--radius);
     overflow: hidden;
     color: var(--text);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+/* Image container */
 .img-box {
     width: 100%;
-    height: 180px;
+    height: 11.25rem;
+    /* 180px */
     background: var(--border);
     position: relative;
-    /* Crucial for placing badges/buttons on top */
+    overflow: hidden;
 }
 
 .img-box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    display: block;
 }
 
 .img-fallback {
@@ -29,79 +39,129 @@
     justify-content: center;
     height: 100%;
     color: var(--muted);
+    font-size: 0.85rem;
 }
 
-/* --- Badges & Buttons --- */
+/* --- Floating Badges & Action Buttons --- */
+
 .contacted-badge {
     position: absolute;
-    top: 8px;
-    left: 8px;
+    top: 0.5rem;
+    left: 0.5rem;
     background: var(--accent);
-    /* Yellow from palette */
     color: var(--primary);
-    /* Deep purple text */
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    font-weight: bold;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    z-index: 2;
 }
 
-.fav-btn {
+/* High-specificity selector to prevent parent button style collisions */
+.card .fav-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: white;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    cursor: pointer;
-    font-size: 1.2rem;
+    top: 0.625rem;
+    right: 0.625rem;
+    width: 2.25rem;
+    /* 36px */
+    height: 2.25rem;
+    border-radius: 50% !important;
+    /* Enforces clean circle */
+    background: rgba(255, 255, 255, 0.75) !important;
+    /* Subtle frosted backdrop */
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.4) !important;
+    padding: 0 !important;
+    /* Clears global button padding that shrunk the icon */
+    margin: 0 !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: var(--shadow);
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+    transition: transform 0.15s ease, background-color 0.15s ease;
+    z-index: 2;
 }
 
-/* --- Text & Info --- */
+.card .fav-btn:hover {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.95) !important;
+}
+
+/* Larger, clear heart icon */
+.card .fav-btn .heart-icon {
+    width: 1.35rem;
+    /* ~22px - comfortable visibility */
+    height: 1.35rem;
+    fill: none;
+    stroke: var(--primary);
+    /* Sharp purple border in un-favorited state */
+    stroke-width: 2;
+    transition: fill 0.15s ease, stroke 0.15s ease;
+    display: block;
+}
+
+/* Filled heart when favorited */
+.card .fav-btn.active .heart-icon {
+    fill: var(--primary);
+    stroke: var(--primary);
+}
+
+/* --- Listing Info & Content --- */
+
 .info {
-    padding: 12px;
+    padding: 0.75rem 1rem 1rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .info h3 {
     color: var(--primary);
-    font-size: 1.1rem;
-    margin-bottom: 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .loc {
     color: var(--secondary);
-    font-size: 0.9rem;
-    margin-bottom: 8px;
+    font-size: 0.85rem;
+    margin-bottom: 0.625rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .tags {
     display: flex;
-    gap: 8px;
+    flex-wrap: wrap;
+    gap: 0.5rem;
 }
 
 .tags span {
     background: var(--bg);
     border: 1px solid var(--border);
+    color: var(--text);
     font-size: 0.75rem;
-    padding: 2px 6px;
-    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.25rem;
+    text-transform: capitalize;
 }
 
 .price {
-    margin-top: 12px;
+    margin-top: auto;
+    padding-top: 0.75rem;
     color: var(--primary);
     font-size: 1.2rem;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .price span {
     font-size: 0.85rem;
     color: var(--muted);
-    font-weight: normal;
+    font-weight: 400;
 }

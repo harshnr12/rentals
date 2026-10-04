@@ -2,14 +2,26 @@ import { useState, useEffect, useContext } from 'react';
 import { useSearchParams } from 'react-router';
 import ConfigContext from '../context/ConfigContext.js';
 import { getProperties } from '../services/api.js';
-import PropertyCard from '../components/PropertyCard.jsx';
+import PropertyList from '../components/PropertyList.jsx';
 import './Search.css';
+
+// Text format helper for labels
+function formatText(str = '') {
+    return str.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+// User-friendly sort labels
+const sortLabels = {
+    newest: 'Newest First',
+    rent_asc: 'Rent (Low to High)',
+    rent_desc: 'Rent (High to Low)'
+};
 
 function Search() {
     const { config, loading: configLoading } = useContext(ConfigContext);
     const [searchParams, setSearchParams] = useSearchParams();
 
-    // Local form state synced with URL search parameters
+    // Controlled form state initialized from URL
     const [filters, setFilters] = useState({
         cityId: searchParams.get('cityId') || '',
         locality: searchParams.get('locality') || '',
@@ -31,9 +43,8 @@ function Search() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Single effect handles both form sync and API fetching on URL change
+    // Single effect syncs inputs and fetches listings on URL change
     useEffect(() => {
-        // Sync input fields when URL parameters change
         setFilters({
             cityId: searchParams.get('cityId') || '',
             locality: searchParams.get('locality') || '',
@@ -51,12 +62,11 @@ function Search() {
             sort: searchParams.get('sort') || 'newest'
         });
 
-        // Fetch listings from backend whenever URL search parameters change
         async function fetchFilteredProperties() {
             setLoading(true);
             setError(null);
             try {
-                // Convert URLSearchParams into a plain object so Axios sends query params
+                // Convert searchParams into plain object with array support
                 const params = {};
                 for (const [key, value] of searchParams.entries()) {
                     if (params[key]) {
@@ -78,30 +88,31 @@ function Search() {
                 setLoading(false);
             }
         }
+
         fetchFilteredProperties();
     }, [searchParams]);
 
-    // Handle generic text, number, and checkbox inputs
+    // Handle generic text, number, and checkbox changes
     function handleChange(e) {
         const { name, value, type, checked } = e.target;
-        setFilters(prev => ({
+        setFilters((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
         }));
     }
 
-    // Toggle items in furnishing array
+    // Toggle multi-select furnishing checkboxes
     function handleFurnishingToggle(type) {
-        setFilters(prev => {
+        setFilters((prev) => {
             const exists = prev.furnishing.includes(type);
             const updated = exists
-                ? prev.furnishing.filter(item => item !== type)
+                ? prev.furnishing.filter((item) => item !== type)
                 : [...prev.furnishing, type];
             return { ...prev, furnishing: updated };
         });
     }
 
-    // Write form values back into URL parameters
+    // Push form values to URL query parameters
     function applyFilters(e) {
         e.preventDefault();
 
@@ -113,7 +124,7 @@ function Search() {
         if (filters.bedrooms) newParams.set('bedrooms', filters.bedrooms);
         if (filters.bathrooms) newParams.set('bathrooms', filters.bathrooms);
 
-        filters.furnishing.forEach(item => newParams.append('furnishing', item));
+        filters.furnishing.forEach((item) => newParams.append('furnishing', item));
 
         if (filters.minRent) newParams.set('minRent', filters.minRent);
         if (filters.maxRent) newParams.set('maxRent', filters.maxRent);
@@ -129,26 +140,26 @@ function Search() {
         setSearchParams(newParams);
     }
 
-    // Find city label from cityId
-    function getCityName(id) {
-        if (!config) return '';
-        const city = config.options.cities.find(c => c.id === Number(id));
-        return city ? city.name : '';
-    }
+    if (configLoading) return <div className="search-loading">Loading Search...</div>;
 
-    if (configLoading) return <div>Loading Search...</div>;
+    const options = config?.options || {};
+    const cities = options.cities || [];
+    const propertyTypes = options.propertyTypes || [];
+    const furnishingTypes = options.furnishingTypes || [];
+    const sorts = options.sorts || [];
 
     return (
         <main className="search">
             <aside>
                 <h3>Filters</h3>
                 <form onSubmit={applyFilters}>
-
                     <label>City</label>
                     <select name="cityId" value={filters.cityId} onChange={handleChange}>
                         <option value="">All Cities</option>
-                        {config.options.cities.map(city => (
-                            <option key={city.id} value={city.id}>{city.name}</option>
+                        {cities.map((city) => (
+                            <option key={city.id} value={city.id}>
+                                {city.name}
+                            </option>
                         ))}
                     </select>
 
@@ -164,33 +175,35 @@ function Search() {
                     <label>Property Type</label>
                     <select name="propertyType" value={filters.propertyType} onChange={handleChange}>
                         <option value="">Any</option>
-                        {config.options.propertyTypes.map(type => (
+                        {propertyTypes.map((type) => (
                             <option key={type} value={type}>
-                                {type.charAt(0).toUpperCase() + type.slice(1).replace('_', ' ')}
+                                {formatText(type)}
                             </option>
                         ))}
                     </select>
-                    <label><strong>MIN</strong> Bedrooms</label>
+
+                    <label><strong>Min</strong> Bedrooms</label>
                     <select name="bedrooms" value={filters.bedrooms} onChange={handleChange}>
                         <option value="">Any</option>
-                        <option value="1">1 BHK</option>
-                        <option value="2">2 BHK</option>
-                        <option value="3">3 BHK</option>
-                        <option value="4">4 BHK</option>
-                        <option value="5">5 BHK</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
                     </select>
 
-                    <label><strong>MIN</strong> Bathrooms</label>
+                    <label><strong>Min</strong> Bathrooms</label>
                     <select name="bathrooms" value={filters.bathrooms} onChange={handleChange}>
                         <option value="">Any</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                         <option value="3">3</option>
                         <option value="4">4</option>
+                        <option value="5">5</option>
                     </select>
 
                     <label>Furnishing</label>
-                    {config.options.furnishingTypes.map(type => (
+                    {furnishingTypes.map((type) => (
                         <div key={type} className="checkbox-group">
                             <input
                                 type="checkbox"
@@ -199,7 +212,7 @@ function Search() {
                                 onChange={() => handleFurnishingToggle(type)}
                             />
                             <label htmlFor={`furnishing-${type}`}>
-                                {type.replace('_', ' ')}
+                                {formatText(type)}
                             </label>
                         </div>
                     ))}
@@ -283,35 +296,25 @@ function Search() {
 
                     <label>Sort By</label>
                     <select name="sort" value={filters.sort} onChange={handleChange}>
-                        <option value="newest">Newest First</option>
-                        <option value="rent_asc">Rent (Low to High)</option>
-                        <option value="rent_desc">Rent (High to Low)</option>
+                        {sorts.map((sortOption) => (
+                            <option key={sortOption} value={sortOption}>
+                                {sortLabels[sortOption] || formatText(sortOption)}
+                            </option>
+                        ))}
                     </select>
 
                     <button type="submit">Apply Filters</button>
                 </form>
             </aside>
 
-            <section>
+            <section className="search-results">
                 <h2>{properties.length} Properties Found</h2>
-
-                {loading ? (
-                    <p>Loading properties...</p>
-                ) : error ? (
-                    <p>Error loading properties.</p>
-                ) : properties.length === 0 ? (
-                    <p>No properties match the search filters.</p>
-                ) : (
-                    <div className="properties-list">
-                        {properties.map(property => (
-                            <PropertyCard
-                                key={property.id}
-                                property={property}
-                                cityName={getCityName(property.city_id)}
-                            />
-                        ))}
-                    </div>
-                )}
+                <PropertyList
+                    properties={properties}
+                    loading={loading}
+                    error={error}
+                    emptyMessage="No properties match the search filters."
+                />
             </section>
         </main>
     );
