@@ -1,4 +1,4 @@
-function MyProfile() {
+function Profile() {
     return (
         <div className="myProfile">
             MyProfile
@@ -6,4 +6,4 @@ function MyProfile() {
     );
 }
 
-export default MyProfile;
+export default Profile;

@@ -6,98 +6,30 @@ import AuthContext from '../context/AuthContext.js';
 function Navbar() {
     const { isLoggedIn, logout } = useContext(AuthContext);
     const navigate = useNavigate();
-    function handleLogout() {
+
+    const handleLogout = () => {
         logout();
         navigate('/');
     }
 
     return (
-        <header className="navbar">
-            <Link to="/" className="navbar-logo">
-                Rentals
-            </Link>
-            <nav className="navbar-links">
-                <NavLink
-                    to="/"
-                    end
-                    className={({ isActive }) =>
-                        isActive ? 'navbar-link active' : 'navbar-link'
-                    }
-                >
-                    Home
-                </NavLink>
-                <NavLink
-                    to="/properties"
-                    end
-                    className={({ isActive }) =>
-                        isActive ? 'navbar-link active' : 'navbar-link'
-                    }
-                >
-                    Search
-                </NavLink>
-                {isLoggedIn && (
+        <header>
+            <Link to="/">Rentals</Link>
+            <nav>
+                <NavLink to="/" end>Home</NavLink>
+                <NavLink to="/properties" end>Search</NavLink>
+                {isLoggedIn ? (
                     <>
-                        <NavLink
-                            to="/favorites"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            Favorites
-                        </NavLink>
-                        <NavLink
-                            to="/contacted"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            Contacted
-                        </NavLink>
-                        <NavLink
-                            to="/my-properties"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            My Properties
-                        </NavLink>
-                        <NavLink
-                            to="/profile"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            My Profile
-                        </NavLink>
-                        <button onClick={handleLogout}>
-                            Logout
-                        </button>
+                        <NavLink to="/favorites" end>Favorites</NavLink>
+                        <NavLink to="/contacted" end>Contacted</NavLink>
+                        <NavLink to="/my-listings" end>My Listings</NavLink>
+                        <NavLink to="/profile" end>My Profile</NavLink>
+                        <button onClick={handleLogout}>Logout</button>
                     </>
-                )}
-                {!isLoggedIn && (
+                ) : (
                     <>
-                        <NavLink
-                            to="/login"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            Login
-                        </NavLink>
-                        <NavLink
-                            to="/signup"
-                            end
-                            className={({ isActive }) =>
-                                isActive ? 'navbar-link active' : 'navbar-link'
-                            }
-                        >
-                            Signup
-                        </NavLink>
+                        <NavLink to="/login" end>Login</NavLink>
+                        <NavLink to="/signup" end>Signup</NavLink>
                     </>
                 )}
             </nav>
