@@ -1,0 +1,39 @@
+.home {
+    padding: 2rem;
+}
+
+.home-header {
+    margin-bottom: 2rem;
+}
+
+.home-header h1 {
+    margin-bottom: 0.5rem;
+}
+
+.home-header p {
+    margin-bottom: 1.5rem;
+}
+
+.home-header label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.home-header select {
+    padding: 0.6rem;
+    min-width: 220px;
+}
+
+.home-properties h2 {
+    margin-bottom: 1.5rem;
+}
+
+.property-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+}
+
+.property-card {
+    width: 300px;
+}
