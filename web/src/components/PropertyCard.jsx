@@ -1,22 +1,30 @@
 import { useContext } from 'react';
 import { Link } from 'react-router';
-import { getImageUrl } from '../services/api.js';
+import AuthContext from '../context/AuthContext.js';
 import UserDataContext from '../context/UserDataContext.js';
+import { getImageUrl } from '../services/api.js';
 import './PropertyCard.css';
 
 function PropertyCard({ property, cityName }) {
-    const { favorites = [], contacted = [], toggleFavorite } = useContext(UserDataContext);
+    const { isLoggedIn } = useContext(AuthContext);
+    const { favoriteIds, contactedIds, toggleFavorite } = useContext(UserDataContext);
 
-    const isFav = favorites.includes(property.id);
-    const hasContacted = contacted.includes(property.id);
+    // Symmetric O(1) Set lookups
+    const isFavorite = favoriteIds ? favoriteIds.has(property.id) : false;
+    const isContacted = contactedIds ? contactedIds.has(property.id) : false;
     const photoUrl = property.photos?.length > 0 ? getImageUrl(property.photos[0]) : null;
 
-    // Toggle favorite state without opening the property link
+    // Toggle favorite state without triggering link navigation
     async function handleFavClick(e) {
         e.preventDefault();
         e.stopPropagation();
         if (toggleFavorite) {
-            await toggleFavorite(property.id);
+            try {
+                await toggleFavorite(property.id);
+            } catch (err) {
+                // Network failure or unauthenticated session
+                console.error('Failed to toggle favorite:', err);
+            }
         }
     }
 
@@ -29,26 +37,23 @@ function PropertyCard({ property, cityName }) {
                     <div className="img-fallback">No Image</div>
                 )}
 
-                {/* Contacted status chip */}
-                {hasContacted && <span className="contacted-badge">✓ Contacted</span>}
+                {/* Only display contact status to logged-in users */}
+                {isLoggedIn && isContacted && (
+                    <span className="contacted-badge">✓ Contacted</span>
+                )}
 
-                {/* Floating Heart Button */}
-                <button
-                    type="button"
-                    className={`fav-btn ${isFav ? 'active' : ''}`}
-                    onClick={handleFavClick}
-                    aria-label={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                    title={isFav ? 'Remove from favorites' : 'Add to favorites'}
-                >
-                    <svg
-                        viewBox="0 0 24 24"
-                        className="heart-icon"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
+                {/* Only render favorite action for logged-in users */}
+                {isLoggedIn && (
+                    <button
+                        type="button"
+                        className={`fav-btn ${isFavorite ? 'active' : ''}`}
+                        onClick={handleFavClick}
                     >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                    </svg>
-                </button>
+                        <svg viewBox="0 0 24 24" className="heart-icon">
+                            <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                        </svg>
+                    </button>
+                )}
             </div>
 
             <div className="info">

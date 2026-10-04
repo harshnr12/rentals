@@ -1,13 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
-
 import AuthContext from '../context/AuthContext.js';
 import UserDataContext from '../context/UserDataContext.js';
-
-import { getCurrentUser } from '../services/api.js';
+import { getCurrentUser, toggleFavorite as apiToggleFavorite } from '../services/api.js';
 
 // Shared data for the authenticated user
 function UserDataProvider({ children }) {
-
     const { isLoggedIn } = useContext(AuthContext);
 
     // User profile loaded from the backend
@@ -19,10 +16,8 @@ function UserDataProvider({ children }) {
     // Property IDs whose owners the current user has contacted
     const [contactedIds, setContactedIds] = useState(() => new Set());
 
-    // Loading state for user-data request
+    // Loading & error states
     const [loading, setLoading] = useState(false);
-
-    // Error from user-data request
     const [error, setError] = useState(null);
 
     // Load or clear user data when login state changes
@@ -51,42 +46,41 @@ function UserDataProvider({ children }) {
                 setCurrentUser(profile);
                 setFavoriteIds(new Set(favorited_property_ids));
                 setContactedIds(new Set(contacted_property_ids));
-
-            } catch (error) {
-                setError(error);
-
+            } catch (err) {
+                setError(err);
             } finally {
                 setLoading(false);
             }
         };
+
         loadUserData();
     }, [isLoggedIn]);
 
-    const addFavorite = (propertyId) => {
-        setFavoriteIds((ids) => {
-            // Create a new Set so React gets a new state reference
-            const updatedIds = new Set(ids);
-            updatedIds.add(propertyId);
-            return updatedIds;
-        });
-    };
-
-    const removeFavorite = (propertyId) => {
-        setFavoriteIds((ids) => {
-            // Create a new Set so React gets a new state reference
-            const updatedIds = new Set(ids);
-            updatedIds.delete(propertyId);
-            return updatedIds;
-        });
-
+    // Centralized toggle: calls API and updates local Set
+    const toggleFavorite = async (propertyId) => {
+        const isFav = favoriteIds.has(propertyId);
+        try {
+            await apiToggleFavorite(propertyId);
+            setFavoriteIds((prev) => {
+                const updated = new Set(prev);
+                if (isFav) {
+                    updated.delete(propertyId);
+                } else {
+                    updated.add(propertyId);
+                }
+                return updated;
+            });
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+            throw err;
+        }
     };
 
     const addContacted = (propertyId) => {
-        setContactedIds((ids) => {
-            // Create a new Set so React gets a new state reference
-            const updatedIds = new Set(ids);
-            updatedIds.add(propertyId);
-            return updatedIds;
+        setContactedIds((prev) => {
+            const updated = new Set(prev);
+            updated.add(propertyId);
+            return updated;
         });
     };
 
@@ -96,8 +90,7 @@ function UserDataProvider({ children }) {
                 currentUser,
                 favoriteIds,
                 contactedIds,
-                addFavorite,
-                removeFavorite,
+                toggleFavorite,
                 addContacted,
                 loading,
                 error
@@ -106,6 +99,6 @@ function UserDataProvider({ children }) {
             {children}
         </UserDataContext.Provider>
     );
-};
+}
 
 export default UserDataProvider;

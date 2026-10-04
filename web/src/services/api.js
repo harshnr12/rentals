@@ -30,7 +30,7 @@ export const login = async (credentials) => {
     return response.data;
 };
 
-export const register = async (userData) => {
+export const signup = async (userData) => {
     const response = await api.post('/auth/signup', userData);
     return response.data;
 };

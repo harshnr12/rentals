@@ -1,23 +1,24 @@
 import { useState } from 'react';
-
-import AuthContext from '../context/AuthContext';
-import { login as loginApi } from '../services/api';
+import AuthContext from '../context/AuthContext.js';
+import { login as loginApi, signup as signupApi } from '../services/api.js';
 
 function AuthProvider({ children }) {
+    // Read initial token from localStorage
+    const [token, setToken] = useState(() => localStorage.getItem('token'));
 
-    // Authentication state with lazy initialization from localStorage
-    const [token, setToken] = useState(
-        () => localStorage.getItem('token')
-    );
-
-    const isLoggedIn = token !== null;
+    const isLoggedIn = Boolean(token);
 
     const login = async (credentials) => {
         const data = await loginApi(credentials);
-
         localStorage.setItem('token', data.token);
         setToken(data.token);
+        return data;
+    };
 
+    const signup = async (userData) => {
+        const data = await signupApi(userData);
+        localStorage.setItem('token', data.token);
+        setToken(data.token);
         return data;
     };
 
@@ -31,12 +32,13 @@ function AuthProvider({ children }) {
             value={{
                 isLoggedIn,
                 login,
+                signup,
                 logout
             }}
         >
             {children}
         </AuthContext.Provider>
     );
-};
+}
 
 export default AuthProvider;
