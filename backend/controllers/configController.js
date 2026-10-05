@@ -5,6 +5,7 @@ import pool from '../db/pool.js';
 // PostgreSQL on every /config request.
 let cachedConfig = null;
 
+// GET /api/v1/config
 export const getConfigData = async (req, res, next) => {
 
     // Fetch config from PostgreSQL only when the server-side cache is empty,
