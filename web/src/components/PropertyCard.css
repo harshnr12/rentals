@@ -9,6 +9,7 @@
     overflow: hidden;
     color: var(--text);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
 }
 
 .card:hover {
@@ -17,23 +18,22 @@
 }
 
 /* Image container */
-.img-box {
+.card .img-box {
     width: 100%;
-    height: 11.25rem;
-    /* 180px */
+    aspect-ratio: 16 / 9;
     background: var(--border);
     position: relative;
     overflow: hidden;
 }
 
-.img-box img {
+.card .img-box img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.img-fallback {
+.card .img-fallback {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,8 +43,7 @@
 }
 
 /* --- Floating Badges & Action Buttons --- */
-
-.contacted-badge {
+.card .contacted-badge {
     position: absolute;
     top: 0.5rem;
     left: 0.5rem;
@@ -58,23 +57,19 @@
     z-index: 2;
 }
 
-/* High-specificity selector to prevent parent button style collisions */
-.card .fav-btn {
+/* Specific selector removes the need for !important tags */
+.card button.fav-btn {
     position: absolute;
     top: 0.625rem;
     right: 0.625rem;
     width: 2.25rem;
-    /* 36px */
     height: 2.25rem;
-    border-radius: 50% !important;
-    /* Enforces clean circle */
-    background: rgba(255, 255, 255, 0.75) !important;
-    /* Subtle frosted backdrop */
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.75);
     backdrop-filter: blur(4px);
-    border: 1px solid rgba(255, 255, 255, 0.4) !important;
-    padding: 0 !important;
-    /* Clears global button padding that shrunk the icon */
-    margin: 0 !important;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    padding: 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -84,40 +79,35 @@
     z-index: 2;
 }
 
-.card .fav-btn:hover {
+.card button.fav-btn:hover {
     transform: scale(1.1);
-    background: rgba(255, 255, 255, 0.95) !important;
+    background: rgba(255, 255, 255, 0.95);
 }
 
-/* Larger, clear heart icon */
-.card .fav-btn .heart-icon {
+.card button.fav-btn .heart-icon {
     width: 1.35rem;
-    /* ~22px - comfortable visibility */
     height: 1.35rem;
     fill: none;
     stroke: var(--primary);
-    /* Sharp purple border in un-favorited state */
     stroke-width: 2;
     transition: fill 0.15s ease, stroke 0.15s ease;
     display: block;
 }
 
-/* Filled heart when favorited */
-.card .fav-btn.active .heart-icon {
+.card button.fav-btn.active .heart-icon {
     fill: var(--primary);
     stroke: var(--primary);
 }
 
 /* --- Listing Info & Content --- */
-
-.info {
+.card .info {
     padding: 0.75rem 1rem 1rem;
     display: flex;
     flex-direction: column;
     flex: 1;
 }
 
-.info h3 {
+.card .info h3 {
     color: var(--primary);
     font-size: 1.05rem;
     font-weight: 700;
@@ -127,7 +117,7 @@
     text-overflow: ellipsis;
 }
 
-.loc {
+.card .loc {
     color: var(--secondary);
     font-size: 0.85rem;
     margin-bottom: 0.625rem;
@@ -136,13 +126,13 @@
     text-overflow: ellipsis;
 }
 
-.tags {
+.card .tags {
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
 }
 
-.tags span {
+.card .tags span {
     background: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
@@ -152,7 +142,7 @@
     text-transform: capitalize;
 }
 
-.price {
+.card .price {
     margin-top: auto;
     padding-top: 0.75rem;
     color: var(--primary);
@@ -160,7 +150,7 @@
     font-weight: 700;
 }
 
-.price span {
+.card .price span {
     font-size: 0.85rem;
     color: var(--muted);
     font-weight: 400;

@@ -5,10 +5,14 @@
     gap: 1.25rem;
 }
 
-/* Card sizing using relative rem units */
+/* Card sizing using Flexbox */
 .property-list>* {
-    flex: 1 1 17.5rem;
-    max-width: 22rem;
+    /* 
+       0 = Do not grow to fill empty space on the last row
+       1 = Shrink if the screen gets too small
+       18rem = The ideal base width of the card
+    */
+    flex: 0 1 18rem;
     min-width: 0;
 }
 
@@ -22,6 +26,6 @@
 /* Mobile full width rule */
 @media (max-width: 480px) {
     .property-list>* {
-        max-width: 100%;
+        flex: 1 1 100%;
     }
 }
