@@ -1,0 +1,138 @@
+/* Container */
+.profile-page {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 2.5rem 1rem 4rem;
+}
+
+/* Dashboard card */
+.profile-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 0.35rem solid var(--accent);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+}
+
+/* User identity header */
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding-bottom: 1.75rem;
+    border-bottom: 1px solid var(--secondary);
+}
+
+/* Scaled circular silhouette icon badge (from 3.25rem to 4rem) */
+.profile-avatar {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: #f0ebfa;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profile-avatar-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+}
+
+/* Typography scaled up */
+.profile-title-group h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.35rem;
+}
+
+.profile-title-group p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Section titles */
+.profile-section-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+    margin: 2rem 0 1rem;
+}
+
+/* Flex rows */
+.profile-details-row,
+.profile-metrics-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+/* Field item */
+.profile-field {
+    flex: 1 1 16rem;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+}
+
+.profile-field-label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04rem;
+    margin-bottom: 0.35rem;
+}
+
+.profile-field-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+    word-break: break-all;
+}
+
+/* Activity metric card */
+.metric-card {
+    flex: 1 1 16rem;
+    min-width: 0;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--secondary);
+    border-radius: var(--radius);
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.metric-number {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: var(--primary);
+    line-height: 1.2;
+}
+
+.metric-label {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-top: 0.35rem;
+}
+
+/* Viewport scaling */
+@media (max-width: 35rem) {
+
+    .profile-field,
+    .metric-card {
+        flex-basis: 100%;
+        max-width: 100%;
+    }
+}

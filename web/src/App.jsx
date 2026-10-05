@@ -8,7 +8,7 @@ import Signup from './screens/Signup.jsx';
 import Favorites from './screens/Favorites.jsx';
 import Contacted from './screens/Contacted.jsx';
 import Profile from './screens/Profile.jsx';
-import MyProperties from './screens/MyProperties.jsx';
+import MyListings from './screens/MyListings.jsx';
 import AddProperty from './screens/AddProperty.jsx';
 import EditProperty from './screens/EditProperty.jsx';
 
@@ -33,7 +33,7 @@ function App() {
                 <Route path="/contacted" element={<Contacted />} />
 
                 {/* 4. Owner Listing Management */}
-                <Route path="/my-listings" element={<MyProperties />} />
+                <Route path="/my-listings" element={<MyListings />} />
                 <Route path="/listings/new" element={<AddProperty />} />
                 <Route path="/listings/:id/edit" element={<EditProperty />} />
 

@@ -1,53 +1,56 @@
 import { useState, useEffect } from 'react';
-import { getMyContactedProperties } from '../services/api.js';
+import { Link } from 'react-router';
+import { getMyListedProperties } from '../services/api.js';
 import PropertyList from '../components/PropertyList.jsx';
 import '../components/UserCollections.css';
 
-function Contacted() {
+function MyListings() {
     const [properties, setProperties] = useState([]);
-    const [lifetimeCount, setLifetimeCount] = useState(0);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        async function fetchContacted() {
+        async function fetchListings() {
             setLoading(true);
             setError(null);
             try {
-                const data = await getMyContactedProperties();
+                const data = await getMyListedProperties();
                 setProperties(data.properties || []);
-                setLifetimeCount(Number(data.lifetime_contacted_property_count) || 0);
             } catch (err) {
-                setError('Failed to load contacted properties. Please try again.');
+                setError('Failed to load listings. Please try again.');
             } finally {
                 setLoading(false);
             }
         }
 
-        fetchContacted();
+        fetchListings();
     }, []);
 
     return (
         <main className="collection-page">
             <header className="collection-header">
                 <div className="collection-title-group">
-                    <h1>Contacted Properties</h1>
+                    <h1>My Listings</h1>
                     {!loading && !error && (
                         <span className="collection-badge">
-                            {properties.length} active • {lifetimeCount} lifetime inquiries
+                            {properties.length} {properties.length === 1 ? 'listing' : 'listings'}
                         </span>
                     )}
                 </div>
+
+                <Link to="/listings/new" className="collection-action-btn">
+                    + Post Property
+                </Link>
             </header>
 
             <PropertyList
                 properties={properties}
                 loading={loading}
                 error={error}
-                emptyMessage="No contacted properties found. Inquiries sent to property owners will appear here."
+                emptyMessage="No listings posted yet. Use the button above to publish a rental listing."
             />
         </main>
     );
 }
 
-export default Contacted;
+export default MyListings;

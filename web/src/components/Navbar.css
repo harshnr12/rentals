@@ -1,5 +1,5 @@
 /* Container */
-header {
+.navbar-header {
     position: sticky;
     top: 0;
     z-index: 100;
@@ -12,7 +12,7 @@ header {
 }
 
 /* Logo */
-header>a {
+.navbar-brand {
     color: white;
     font-size: 1.6rem;
     font-weight: bold;
@@ -21,15 +21,15 @@ header>a {
 }
 
 /* Links Container */
-nav {
+.navbar-nav {
     display: flex;
     gap: 12px;
     align-items: center;
 }
 
 /* Standard Links & Button */
-nav a,
-nav button {
+.navbar-nav a,
+.navbar-nav button {
     color: var(--accent);
     text-decoration: none;
     font-size: 1rem;
@@ -45,14 +45,14 @@ nav button {
 }
 
 /* Hover State */
-nav a:hover,
-nav button:hover {
+.navbar-nav a:hover,
+.navbar-nav button:hover {
     opacity: 1;
     background: var(--primary-hover);
 }
 
 /* Active Link (Injected automatically by React Router) */
-nav a.active {
+.navbar-nav a.active {
     opacity: 1;
     color: var(--primary);
     /* Deep purple on whitesmoke for high contrast */
