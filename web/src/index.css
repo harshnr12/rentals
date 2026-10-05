@@ -32,6 +32,11 @@
     padding: 0;
 }
 
+/* Scales 1rem from 16px down to 14px across the whole app */
+html {
+    font-size: 87.5%;
+}
+
 body {
     font-family: var(--font);
     line-height: 1.5;
