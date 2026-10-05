@@ -1,0 +1,184 @@
+/* Shared layout for Add and Edit property screens */
+.property-form-wrapper {
+    max-width: 52rem;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+}
+
+.property-form-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 2.5rem;
+    box-shadow: var(--shadow);
+}
+
+.property-form-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.property-form-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.5rem;
+}
+
+.property-form-header p {
+    color: var(--muted);
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Form structure */
+.property-form {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Form Sections */
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.form-section h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--secondary);
+    margin: 0 0 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+/* Grid for side-by-side inputs */
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: 1.25rem;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+    gap: 1.25rem;
+}
+
+/* Individual inputs */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.input-group label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.input-group input,
+.input-group select {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(62, 15, 141, 0.12);
+}
+
+/* Checkbox groups */
+.checkbox-group-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    padding: 1rem;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+    width: 1.1rem;
+    height: 1.1rem;
+    cursor: pointer;
+    accent-color: var(--primary);
+}
+
+/* Error message banner */
+.form-error {
+    background: #fee2e2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.95rem;
+}
+
+/* Submit row */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn-cancel,
+.btn-submit {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.btn-cancel:hover {
+    background: var(--bg);
+    color: var(--text);
+}
+
+.btn-submit {
+    background: var(--primary);
+    color: #ffffff;
+    border: none;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.btn-submit:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
