@@ -13,7 +13,9 @@ function Profile() {
         );
     }
 
-    const memberSince = new Date(currentUser.created_at).toLocaleDateString();
+    const memberSince = new Date(currentUser.created_at).toLocaleDateString(
+        undefined, { month: 'long', day: 'numeric', year: 'numeric' }
+    );
     const savedCount = favoriteIds ? favoriteIds.size : 0;
     const lifetimeContacts = currentUser.lifetime_contacted_property_count || 0;
 
@@ -28,7 +30,7 @@ function Profile() {
                     </div>
                     <div className="profile-title-group">
                         <h2>{currentUser.name}</h2>
-                        <p>Member since {memberSince}</p>
+                        <p>Member since: {memberSince}</p>
                     </div>
                 </header>
 
