@@ -16,8 +16,7 @@
     /* UI */
     --primary-hover: #9072e4;
     --radius: 8px;
-    --shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-
+    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
     --font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 

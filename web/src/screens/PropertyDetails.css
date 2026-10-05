@@ -1,0 +1,307 @@
+/* Main Page Layout */
+.property-details-page {
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+    padding: 1.25rem 1rem;
+    max-width: 88rem;
+    margin: 0 auto;
+}
+
+/* Header at the very top */
+.details-header.top-header h1 {
+    font-size: 2.25rem;
+    color: var(--primary);
+    margin: 0 0 0.25rem;
+    line-height: 1.2;
+}
+
+.details-header.top-header .location {
+    font-size: 1.15rem;
+    color: var(--secondary);
+    margin: 0;
+}
+
+/* New container for the split view below the gallery */
+.content-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 2rem;
+    width: 100%;
+}
+
+/* --- Horizontal Gallery (Main Left, Thumbnails Right) --- */
+.gallery-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 0.5rem;
+    /* Slight, gap between main image and thumbnails */
+    height: 65vh;
+    min-height: 400px;
+    max-height: 650px;
+}
+
+.thumbnail-strip {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    /* vertical gap between thumbnails */
+    width: 140px;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 0.25rem;
+    /* Prevents right-side scrollbar from overlapping images */
+}
+
+.thumbnail-strip::-webkit-scrollbar {
+    width: 6px;
+}
+
+.thumbnail-strip::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 4px;
+}
+
+.thumb-img {
+    width: 100%;
+    height: 95px;
+    border-radius: 4px;
+    object-fit: cover;
+    cursor: pointer;
+    border: 2px solid transparent;
+    opacity: 0.6;
+    transition: all 0.2s ease;
+}
+
+.thumb-img:hover {
+    opacity: 0.8;
+}
+
+.thumb-img.active {
+    opacity: 1;
+    border-color: var(--primary);
+}
+
+.main-image-box {
+    /* flex: 1 combined with no aspect-ratio allows it to take up all the empty space perfectly */
+    flex: 1;
+    height: 100%;
+    background: var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.main-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* Left Column Content */
+.details-main {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.section-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+}
+
+.section-card h2 {
+    font-size: 1.25rem;
+    color: var(--primary);
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+    gap: 1.5rem;
+}
+
+.overview-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.overview-item .label {
+    font-size: 0.85rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05rem;
+}
+
+.overview-item .value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* --- Amenities & Rules Pills --- */
+.pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+/* Right Column - Sticky Sidebar */
+.details-sidebar {
+    width: 22rem;
+    position: sticky;
+    top: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 4px solid var(--primary);
+    border-radius: var(--radius);
+    padding: 1.75rem;
+    box-shadow: var(--shadow);
+}
+
+.price-block {
+    margin-bottom: 1.5rem;
+}
+
+.price-block .rent {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0;
+}
+
+.price-block .rent span {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--muted);
+}
+
+.price-block .deposit {
+    font-size: 1rem;
+    color: var(--secondary);
+    margin: 0.5rem 0 0;
+}
+
+.btn-sidebar {
+    width: 100%;
+    padding: 0.85rem;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-contact {
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 2px 4px rgba(62, 15, 141, 0.2);
+}
+
+.btn-contact:hover:not(:disabled) {
+    background: var(--primary-hover);
+}
+
+.btn-edit {
+    background: transparent;
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.btn-edit:hover {
+    background: rgba(62, 15, 141, 0.05);
+}
+
+.contact-info-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.contact-info-card h4 {
+    color: var(--secondary);
+    margin: 0 0 0.5rem;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+}
+
+.contact-info-card p {
+    color: var(--text);
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+}
+
+/* Mobile responsive layout */
+@media (max-width: 64rem) {
+    .property-details-page {
+        padding: 1rem;
+    }
+
+    .content-layout {
+        flex-direction: column;
+    }
+
+    .details-sidebar {
+        width: 100%;
+        position: static;
+        order: -1;
+    }
+
+    /* Switch gallery to vertical stack on small screens */
+    .gallery-wrapper {
+        /* puts Main Image on top, Thumbnails on bottom */
+        flex-direction: column;
+        height: auto;
+        max-height: none;
+    }
+
+    .thumbnail-strip {
+        flex-direction: row;
+        width: 100%;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 0.5rem;
+        padding-right: 0;
+        /* Reset desktop padding */
+        gap: 0.75rem;
+    }
+
+    .thumb-img {
+        width: 6rem;
+        height: 4rem;
+    }
+
+    .main-image-box {
+        aspect-ratio: 16 / 9;
+    }
+}

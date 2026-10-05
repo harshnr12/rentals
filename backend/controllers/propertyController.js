@@ -5,18 +5,17 @@ import deletePhotoFiles from '../utils/fileUtils.js';
 /**
  * GET /properties
  *     → property listings
- *     → no owner information (name, phone, ID)
+ *     → exposes owner_id (for frontend UI logic), but hides sensitive info (name, phone)
  *
  * GET /properties/:id
  *     → property details
- *     → no owner information (name, phone, ID)
- *
+ *     → exposes owner_id (for frontend UI logic), but hides sensitive info (name, phone)
  *
  * GET /properties/:id/contact
  *     → LOGIN REQUIRED
- *     → owner name + phone only (no owner ID)
+ *     → exposes owner name + phone
  *     → rate limited (10 views / 24 hours per user via contactLimiter)
- *     → appends property ID to user's contacted_properties array (deduplicated)
+ *     → appends property ID to user's contacted_properties table (deduplicated)
  */
 
 export const getProperties = async (req, res, next) => {
@@ -140,15 +139,9 @@ export const getProperties = async (req, res, next) => {
 
     const { rows } = await pool.query(query, values);
 
-    // Hide owner IDs from public response
-    const properties = rows.map(row => {
-        const { owner_id, ...property } = row;
-        return property;
-    });
-
     res.status(200).json({
-        count: properties.length,
-        properties
+        count: rows.length,
+        properties:rows
     });
 };
 
@@ -166,10 +159,7 @@ export const getProperty = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    // Hide owner ID from public response
-    const { owner_id, ...property } = rows[0];
-
-    res.status(200).json({ property });
+    res.status(200).json({ property:rows[0] });
 };
 
 export const createProperty = async (req, res, next) => {
