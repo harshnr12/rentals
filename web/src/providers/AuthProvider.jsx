@@ -3,7 +3,8 @@ import AuthContext from '../context/AuthContext.js';
 import { login as loginApi, signup as signupApi } from '../services/api.js';
 
 function AuthProvider({ children }) {
-    // Read initial token from localStorage
+
+    // Use a lazy state initializer so localStorage is read only during initial state initialization
     const [token, setToken] = useState(() => localStorage.getItem('token'));
 
     const isLoggedIn = Boolean(token);

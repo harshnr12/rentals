@@ -3,16 +3,10 @@ import ConfigContext from '../context/ConfigContext.js';
 import { getConfig } from '../services/api.js';
 
 function ConfigProvider({ children }) {
-    // Configuration state with lazy initialization from localStorage
-    const [config, setConfig] = useState(() => {
-        const savedConfig = localStorage.getItem('config');
-        return savedConfig ? JSON.parse(savedConfig) : null;
-    });
 
-    // Load only when configuration is not already cached
-    const [loading, setLoading] = useState(config === null);
-
-    // Error from configuration request
+    // Stored strictly in RAM
+    const [config, setConfig] = useState(null);
+    const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
@@ -22,7 +16,6 @@ function ConfigProvider({ children }) {
         const loadConfig = async () => {
             try {
                 const data = await getConfig();
-                localStorage.setItem('config', JSON.stringify(data));
                 setConfig(data);
             } catch (error) {
                 setError(error);
@@ -30,8 +23,9 @@ function ConfigProvider({ children }) {
                 setLoading(false);
             }
         };
+
         loadConfig();
-    }, []);
+    }, []);         // runs exactly once on startup
 
     return (
         <ConfigContext.Provider
