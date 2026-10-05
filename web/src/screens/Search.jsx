@@ -43,7 +43,7 @@ function Search() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // Single effect syncs inputs and fetches listings on URL change
+    // Sync state on URL change and fetch properties
     useEffect(() => {
         setFilters({
             cityId: searchParams.get('cityId') || '',
@@ -66,21 +66,8 @@ function Search() {
             setLoading(true);
             setError(null);
             try {
-                // Convert searchParams into plain object with array support
-                const params = {};
-                for (const [key, value] of searchParams.entries()) {
-                    if (params[key]) {
-                        if (Array.isArray(params[key])) {
-                            params[key].push(value);
-                        } else {
-                            params[key] = [params[key], value];
-                        }
-                    } else {
-                        params[key] = value;
-                    }
-                }
-
-                const data = await getProperties(params);
+                // Axios handles URLSearchParams natively. 
+                const data = await getProperties(searchParams);
                 setProperties(data.properties || data);
             } catch (err) {
                 setError(err);
@@ -140,6 +127,10 @@ function Search() {
         setSearchParams(newParams);
     }
 
+    function clearFilters() {
+        setSearchParams(new URLSearchParams());
+    }
+
     if (configLoading) return <div className="search-loading">Loading Search...</div>;
 
     const options = config?.options || {};
@@ -167,7 +158,7 @@ function Search() {
                     <input
                         type="text"
                         name="locality"
-                        placeholder="e.g. Rohini"
+                        placeholder="e.g. Bandra"
                         value={filters.locality}
                         onChange={handleChange}
                     />
@@ -303,7 +294,10 @@ function Search() {
                         ))}
                     </select>
 
-                    <button type="submit">Apply Filters</button>
+                    <div className="search-actions">
+                        <button type="submit" className="btn-apply">Apply Filters</button>
+                        <button type="button" onClick={clearFilters} className="btn-clear">Clear</button>
+                    </div>
                 </form>
             </aside>
 
