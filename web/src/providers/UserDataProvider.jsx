@@ -71,7 +71,8 @@ function UserDataProvider({ children }) {
                 return updated;
             });
         } catch (err) {
-            console.error('Failed to toggle favorite. Icon remains unchanged.', err); throw err;
+            console.error('Failed to toggle favorite. Icon remains unchanged.', err);
+            throw err;
         }
     };
 

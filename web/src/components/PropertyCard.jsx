@@ -87,8 +87,8 @@ function PropertyCard({ property, cityName }) {
                     {property.furnishing && (
                         <span>{property.furnishing.replace('_', ' ')}</span>
                     )}
-                    {property.type && (
-                        <span>{property.type.replace('_', ' ')}</span>
+                    {property.property_type && (
+                        <span>{property.property_type.replace('_', ' ')}</span>
                     )}
                 </div>
 

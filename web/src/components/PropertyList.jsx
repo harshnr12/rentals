@@ -36,7 +36,7 @@ function PropertyList({
                 <PropertyCard
                     key={property.id}
                     property={property}
-                    cityName={getCityName(property.city_id || property.cityId)}
+                    cityName={getCityName(property.city_id)}
                 />
             ))}
         </div>

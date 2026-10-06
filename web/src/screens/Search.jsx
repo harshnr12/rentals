@@ -6,8 +6,12 @@ import PropertyList from '../components/PropertyList.jsx';
 import './Search.css';
 
 // Text format helper for labels
-function formatText(str = '') {
-    return str.replace('_', ' ').replace(/\b\w/g, (char) => char.toUpperCase());
+function formatString(str) {
+    if (!str) return '';
+    return str
+        .split('_')
+        .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
 }
 
 // User-friendly sort labels
@@ -68,7 +72,7 @@ function Search() {
             try {
                 // Axios handles URLSearchParams natively. 
                 const data = await getProperties(searchParams);
-                setProperties(data.properties || data);
+                setProperties(data.properties);
             } catch (err) {
                 setError(err);
             } finally {
@@ -168,7 +172,7 @@ function Search() {
                         <option value="">Any</option>
                         {propertyTypes.map((type) => (
                             <option key={type} value={type}>
-                                {formatText(type)}
+                                {formatString(type)}
                             </option>
                         ))}
                     </select>
@@ -203,7 +207,7 @@ function Search() {
                                 onChange={() => handleFurnishingToggle(type)}
                             />
                             <label htmlFor={`furnishing-${type}`}>
-                                {formatText(type)}
+                                {formatString(type)}
                             </label>
                         </div>
                     ))}
@@ -289,7 +293,7 @@ function Search() {
                     <select name="sort" value={filters.sort} onChange={handleChange}>
                         {sorts.map((sortOption) => (
                             <option key={sortOption} value={sortOption}>
-                                {sortLabels[sortOption] || formatText(sortOption)}
+                                {sortLabels[sortOption] || formatString(sortOption)}
                             </option>
                         ))}
                     </select>

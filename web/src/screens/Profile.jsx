@@ -50,7 +50,7 @@ function Profile() {
                 <div className="profile-metrics-row">
                     <div className="metric-card">
                         <span className="metric-number">{savedCount}</span>
-                        <span className="metric-label">Saved Properties</span>
+                        <span className="metric-label">Favorited Properties</span>
                     </div>
                     <div className="metric-card">
                         <span className="metric-number">{lifetimeContacts}</span>
