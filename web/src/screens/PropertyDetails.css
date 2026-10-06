@@ -238,6 +238,18 @@
     background: rgba(62, 15, 141, 0.05);
 }
 
+/* When Rate limited */
+.contact-limit-error {
+    color: #f72585;
+    margin-bottom: 1rem;
+    font-weight: 600;
+}
+
+.btn-contact:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .contact-info-card {
     background: var(--bg);
     border: 1px solid var(--border);

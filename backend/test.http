@@ -88,11 +88,8 @@ Authorization: Bearer {{token}}
 ### 4. PROPERTIES (Advanced Search Filters)
 ### ==========================================
 
-### SINGLE Array Item (Tests Joi .single() wrapping)
-GET {{baseUrl}}/properties?bedrooms=2
-
-### MULTIPLE Array Items (Tests SQL = ANY() logic)
-GET {{baseUrl}}/properties?bedrooms=1&bedrooms=2
+### Min Filter
+GET {{baseUrl}}/properties?minBedrooms=4
 
 ### MULTIPLE String Array Items (Furnishing)
 GET {{baseUrl}}/properties?furnishing=semi_furnished&furnishing=fully_furnished
@@ -110,10 +107,10 @@ GET {{baseUrl}}/properties?hasLift=false
 GET {{baseUrl}}/properties?cityId=1&minRent=10000&maxRent=25000&hasParking=true
 
 ### THE "MEGATRON" QUERY (Tests absolute robustness)
-GET {{baseUrl}}/properties?cityId=1&bedrooms=1&bedrooms=2&allowSingleMale=true&allowFamily=true&furnishing=semi_furnished&furnishing=fully_furnished&hasParking=true&sort=rent_asc
+GET {{baseUrl}}/properties?cityId=1&minBedrooms=2&allowSingleMale=true&allowFamily=true&furnishing=semi_furnished&furnishing=fully_furnished&hasParking=true&sort=rent_asc
 
 ### General Search Case
-GET {{baseUrl}}/properties?cityId=1&locality=Rohini&bedrooms=2&maxRent=20000&sort=rent_asc
+GET {{baseUrl}}/properties?cityId=1&locality=Rohini&minBedrooms=2&maxRent=20000&sort=rent_asc
 
 
 ### ==========================================

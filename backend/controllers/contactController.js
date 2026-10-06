@@ -32,6 +32,9 @@ export const getPropertyContact = async (req, res, next) => {
         ON CONFLICT (user_id, property_id) DO NOTHING
     `, [userId, id]);
 
+    // Prevent caching of private, user-specific contact information.
+    res.setHeader('Cache-Control', 'no-store');
+
     res.status(200).json({
         owner: rows[0]
     });

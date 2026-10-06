@@ -13,20 +13,62 @@ function formatString(str) {
         .join(' ');
 }
 
-function PropertyDetails() {
+function formatRemainingTime(seconds) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
 
+    if (hours > 0) {
+        return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
+}
+
+function PropertyDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
-
     const { isLoggedIn } = useContext(AuthContext);
-
-    const { currentUser, addContacted, loading: userDataLoading } = useContext(UserDataContext);
+    const {
+        currentUser,
+        addContacted,
+        loading: userDataLoading
+    } = useContext(UserDataContext);
     const [property, setProperty] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
     const [error, setError] = useState(null);
     const [activePhotoIndex, setActivePhotoIndex] = useState(0);
     const [contactDetails, setContactDetails] = useState(null);
     const [contactLoading, setContactLoading] = useState(false);
+
+    // Contact limit reached handling states
+    const [contactLimitResetAt, setContactLimitResetAt] = useState(null);
+    const [contactLimitSeconds, setContactLimitSeconds] = useState(0);
+    const [contactLimitMessage, setContactLimitMessage] = useState('');
+
+    // Count down to the exact reset time returned by the backend.
+    useEffect(() => {
+        if (!contactLimitResetAt) {
+            return;
+        }
+
+        function updateRemainingTime() {
+            const remainingSeconds = Math.max(
+                0,
+                Math.ceil(
+                    (new Date(contactLimitResetAt).getTime() - Date.now()) / 1000
+                )
+            );
+            setContactLimitSeconds(remainingSeconds);
+
+            if (remainingSeconds === 0) {
+                setContactLimitResetAt(null);
+                setContactLimitMessage('');
+            }
+        }
+        updateRemainingTime();
+        const timer = setInterval(updateRemainingTime, 1000);
+
+        return () => clearInterval(timer);
+    }, [contactLimitResetAt]);
 
     // Load only public property data.
     // Current-user data is already available through the Context providers.
@@ -56,7 +98,7 @@ function PropertyDetails() {
         }
     }, [isLoggedIn]);
 
-    // First Check login status.
+    // First check login status.
     // Ownership only matters after the user is logged in and user data is loaded.
     let isOwner = false;
 
@@ -86,7 +128,7 @@ function PropertyDetails() {
             return;
         }
 
-        if (userDataLoading || isOwner) {
+        if (userDataLoading || isOwner || contactLimitSeconds > 0) {
             return;
         }
         setContactLoading(true);
@@ -96,9 +138,18 @@ function PropertyDetails() {
 
             // Keep the shared contacted state synchronized with the successful request.
             addContacted(Number(id));
-        } catch (err) {
+        }
+        catch (err) {
+            // The contact limiter returns the exact reset time when the daily limit is reached.
+            if (err.response?.status === 429) {
+                const data = err.response.data;
+                setContactLimitMessage(data.message);
+                setContactLimitResetAt(data.resetAt);
+                return;
+            }
             console.error('Failed to get contact details:', err);
-        } finally {
+        }
+        finally {
             setContactLoading(false);
         }
     }
@@ -268,12 +319,27 @@ function PropertyDetails() {
                             <p>{contactDetails.owner_phone}</p>
                         </div>
                     ) : (
-                        <button
-                            className="btn-sidebar btn-contact"
-                            onClick={handleContactOwner}
-                            disabled={isLoggedIn && (userDataLoading || contactLoading)}>
-                            {contactButtonText}
-                        </button>
+                        <>
+                            {contactLimitMessage && contactLimitSeconds > 0 && (
+                                <p className="contact-limit-error">
+                                    {contactLimitMessage}
+                                    <br />Try again in {formatRemainingTime(contactLimitSeconds)}.
+                                </p>
+                            )}
+                            <button
+                                className="btn-sidebar btn-contact"
+                                onClick={handleContactOwner}
+                                disabled={
+                                    isLoggedIn &&
+                                    (
+                                        userDataLoading ||
+                                        contactLoading ||
+                                        contactLimitSeconds > 0
+                                    )
+                                }>
+                                {contactButtonText}
+                            </button>
+                        </>
                     )}
                 </aside>
             </div>

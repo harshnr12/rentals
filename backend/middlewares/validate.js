@@ -41,8 +41,9 @@ export const validateQuery = (req, res, next) => {
     if (!schema) return next();
 
     const { error, value } = schema.validate(req.query, {
+        // Helps avoid bugs
         abortEarly: false,
-        stripUnknown: true
+        stripUnknown: false
     });
 
     if (error) {
@@ -58,7 +59,7 @@ export const validateQuery = (req, res, next) => {
 export const validateParams = (req, res, next) => {
     const { error, value } = propertyIdSchema.validate(req.params, {
         abortEarly: false,
-        stripUnknown: true
+        stripUnknown: false
     });
 
     if (error) {
