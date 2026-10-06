@@ -2,7 +2,12 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router';
 import AuthContext from '../context/AuthContext.js';
 import UserDataContext from '../context/UserDataContext.js';
-import { getProperty, getPropertyContact, getImageUrl } from '../services/api.js';
+import {
+    getProperty,
+    getPropertyContact,
+    getImageUrl,
+    deleteProperty
+} from '../services/api.js';
 import './PropertyDetails.css';
 
 function formatString(str) {
@@ -26,18 +31,20 @@ function formatRemainingTime(seconds) {
 function PropertyDetails() {
     const { id } = useParams();
     const navigate = useNavigate();
+
     const { isLoggedIn } = useContext(AuthContext);
-    const {
-        currentUser,
-        addContacted,
-        loading: userDataLoading
-    } = useContext(UserDataContext);
+    const { currentUser, addContacted, loading: userDataLoading } = useContext(UserDataContext);
+
     const [property, setProperty] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
     const [error, setError] = useState(null);
+
+    const [deleting, setDeleting] = useState(false);
+
     const [activePhotoIndex, setActivePhotoIndex] = useState(0);
     const [contactDetails, setContactDetails] = useState(null);
     const [contactLoading, setContactLoading] = useState(false);
+
 
     // Contact limit reached handling states
     const [contactLimitResetAt, setContactLimitResetAt] = useState(null);
@@ -151,6 +158,22 @@ function PropertyDetails() {
         }
         finally {
             setContactLoading(false);
+        }
+    }
+
+    async function handleDelete() {
+        const confirmed = window.confirm('Are you sure you want to delete this property?');
+        if (!confirmed) {
+            return;
+        }
+        try {
+            setDeleting(true);
+            await deleteProperty(id);
+            navigate('/my-listings');
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to delete property');
+        } finally {
+            setDeleting(false);
         }
     }
 
@@ -295,23 +318,33 @@ function PropertyDetails() {
                         </p>
                     </div>
                     {isOwner ? (
-                        <button
-                            className="btn-sidebar btn-edit"
-                            onClick={() => navigate(`/listings/${id}/edit`)}>
-                            <svg
-                                width="18"
-                                height="18"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round">
-                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                            </svg>
-                            Edit Property
-                        </button>
+                        <>
+                            <button
+                                className="btn-sidebar btn-edit"
+                                onClick={() => navigate(`/listings/${id}/edit`)}
+                            >
+                                <svg
+                                    width="18"
+                                    height="18"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round">
+                                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                                </svg>
+                                Edit Property
+                            </button>
+                            <button
+                                className="btn-sidebar btn-delete"
+                                onClick={handleDelete}
+                                disabled={deleting}
+                            >
+                                {deleting ? 'Deleting...' : 'Delete Property'}
+                            </button>
+                        </>
                     ) : contactDetails ? (
                         <div className="contact-info-card">
                             <h4>Owner Details</h4>

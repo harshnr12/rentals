@@ -250,6 +250,26 @@
     cursor: not-allowed;
 }
 
+.btn-delete {
+    width: 100%;
+    padding: 0.7rem 1rem;
+    margin-top: 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background-color: #f72585;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-delete:hover {
+    background-color: #d91b70;
+}
+
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 .contact-info-card {
     background: var(--bg);
     border: 1px solid var(--border);

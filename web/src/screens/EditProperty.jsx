@@ -8,11 +8,9 @@ function EditProperty() {
     const { id } = useParams();
     const navigate = useNavigate();
     const { config, loading: configLoading, error: configError } = useContext(ConfigContext);
-
     const [initialData, setInitialData] = useState(null);
     const [propertyLoading, setPropertyLoading] = useState(true);
     const [propertyError, setPropertyError] = useState(null);
-
     const [submitLoading, setSubmitLoading] = useState(false);
     const [submitError, setSubmitError] = useState(null);
 
@@ -21,24 +19,31 @@ function EditProperty() {
         async function loadProperty() {
             try {
                 const propertyRes = await getProperty(id);
+
+                // The API returns the property inside the "property" field.
+                const property = propertyRes.property;
+
                 setInitialData({
-                    cityId: propertyRes.city_id,
-                    locality: propertyRes.locality,
-                    propertyType: propertyRes.property_type,
-                    furnishing: propertyRes.furnishing,
-                    rent: propertyRes.rent,
-                    deposit: propertyRes.deposit,
-                    carpetAreaSqft: propertyRes.carpet_area_sqft,
-                    bedrooms: propertyRes.bedrooms,
-                    bathrooms: propertyRes.bathrooms,
-                    floorNo: propertyRes.floor_no,
-                    totalFloors: propertyRes.total_floors,
-                    hasParking: propertyRes.has_parking,
-                    hasLift: propertyRes.has_lift,
-                    allowSingleMale: propertyRes.allow_single_male,
-                    allowSingleFemale: propertyRes.allow_single_female,
-                    allowFamily: propertyRes.allow_family,
-                    photos: propertyRes.photos || []
+                    cityId: property.city_id,
+                    locality: property.locality,
+                    propertyType: property.property_type,
+                    furnishing: property.furnishing,
+                    rent: property.rent,
+                    deposit: property.deposit,
+                    carpetAreaSqft: property.carpet_area_sqft,
+                    bedrooms: property.bedrooms,
+                    bathrooms: property.bathrooms,
+                    floorNo: property.floor_no,
+                    totalFloors: property.total_floors,
+                    hasParking: property.has_parking,
+                    hasLift: property.has_lift,
+                    allowSingleMale: property.allow_single_male,
+                    allowSingleFemale: property.allow_single_female,
+                    allowFamily: property.allow_family,
+
+                    // Keep the existing photo URLs so the form can display
+                    // them and let the owner remove selected photos.
+                    photos: property.photos || []
                 });
             } catch (err) {
                 setPropertyError('Failed to load property data. It may have been deleted or you do not have permission.');
@@ -46,14 +51,11 @@ function EditProperty() {
                 setPropertyLoading(false);
             }
         }
-
         loadProperty();
     }, [id]);
-
     const handleSubmit = async ({ formData, existingPhotos, newPhotos }) => {
         setSubmitLoading(true);
         setSubmitError(null);
-
         try {
             let uploadedPhotoUrls = [];
 
@@ -81,13 +83,25 @@ function EditProperty() {
     };
 
     if (configLoading || propertyLoading) {
-        return <main style={{ padding: '2rem', textAlign: 'center' }}>Loading property details...</main>;
+        return (
+            <main
+                style={{ padding: '2rem', textAlign: 'center' }}>
+                Loading property details...
+            </main>
+        );
     }
 
     if (configError || propertyError) {
-        return <main style={{ padding: '2rem', textAlign: 'center', color: 'red' }}>
-            {configError ? 'Failed to load form configuration.' : propertyError}
-        </main>;
+        return (
+            <main
+                style={{
+                    padding: '2rem',
+                    textAlign: 'center',
+                    color: 'red'
+                }}>
+                {configError ? 'Failed to load form configuration.' : propertyError}
+            </main>
+        );
     }
 
     return (
