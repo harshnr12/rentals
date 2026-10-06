@@ -125,10 +125,16 @@
     border-bottom: 1px solid var(--border);
 }
 
-.overview-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+.overview-items {
+    display: flex;
+    flex-wrap: wrap;
     gap: 1.5rem;
+}
+
+.overview-items>.overview-item {
+    flex: 1 1 9rem;
+    min-width: 0;
+    max-width: 12rem;
 }
 
 .overview-item {
@@ -148,6 +154,13 @@
     font-size: 1rem;
     font-weight: 600;
     color: var(--text);
+}
+
+@media (max-width: 40rem) {
+    .overview-items>.overview-item {
+        max-width: none;
+        flex-basis: 100%;
+    }
 }
 
 /* --- Amenities & Rules Pills --- */
@@ -240,7 +253,7 @@
 
 /* When Rate limited */
 .contact-limit-error {
-    color: #f72585;
+    color: var(--danger);
     margin-bottom: 1rem;
     font-weight: 600;
 }
@@ -255,14 +268,14 @@
     padding: 0.7rem 1rem;
     margin-top: 0.75rem;
     border: none;
-    border-radius: 6px;
-    background-color: #f72585;
-    color: white;
+    border-radius: var(--radius);
+    background-color: var(--danger);
+    color: var(--surface);
     cursor: pointer;
 }
 
 .btn-delete:hover {
-    background-color: #d91b70;
+    background-color: var(--danger-hover);
 }
 
 .btn-delete:disabled {

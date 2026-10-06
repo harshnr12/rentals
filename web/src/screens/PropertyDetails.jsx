@@ -241,7 +241,7 @@ function PropertyDetails() {
                 <div className="details-main">
                     <section className="section-card">
                         <h2>Overview</h2>
-                        <div className="overview-grid">
+                        <div className="overview-items">
                             <div className="overview-item">
                                 <span className="label">Type</span>
                                 <span className="value">{formatString(property.property_type)}</span>

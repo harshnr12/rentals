@@ -82,7 +82,7 @@ function PropertyForm({ title, subtitle, initialData, configData, onSubmit, load
                     {/* SECTION 1: Location */}
                     <section className="form-section">
                         <h3>Location & Details</h3>
-                        <div className="form-grid-2">
+                        <div className="form-row-2">
                             <div className="input-group">
                                 <label>City</label>
                                 <select
@@ -108,7 +108,7 @@ function PropertyForm({ title, subtitle, initialData, configData, onSubmit, load
                                 />
                             </div>
                         </div>
-                        <div className="form-grid-2">
+                        <div className="form-row-2">
                             <div className="input-group">
                                 <label>Property Type</label>
                                 <select
@@ -136,7 +136,7 @@ function PropertyForm({ title, subtitle, initialData, configData, onSubmit, load
                     {/* SECTION 2: Pricing & Dimensions */}
                     <section className="form-section">
                         <h3>Pricing & Size</h3>
-                        <div className="form-grid-3">
+                        <div className="form-row-3">
                             <div className="input-group">
                                 <label>Monthly Rent (₹)</label>
                                 <input
@@ -175,7 +175,7 @@ function PropertyForm({ title, subtitle, initialData, configData, onSubmit, load
                     {/* SECTION 3: Configuration */}
                     <section className="form-section">
                         <h3>Configuration</h3>
-                        <div className="form-grid-2">
+                        <div className="form-row-2">
                             <div className="input-group">
                                 <label>Bedrooms</label>
                                 <input
