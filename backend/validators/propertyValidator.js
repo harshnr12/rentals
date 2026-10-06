@@ -58,10 +58,9 @@ export const propertyQuerySchema = Joi.object({
     minRent: Joi.number().integer().min(0),
     maxRent: Joi.number().integer().min(0),
 
-    // .single() means if user pass ?bedrooms=1, Joi converts it to [1]. 
-    // If user pass ?bedrooms=1&bedrooms=2, it remains [1, 2].
-    bedrooms: Joi.array().items(Joi.number().integer().min(1)).single(),
-    bathrooms: Joi.array().items(Joi.number().integer().min(1)).single(),
+    minBedrooms: Joi.number().integer().min(1),
+    minBathrooms: Joi.number().integer().min(1),
+
     propertyType: Joi.array().items(Joi.string().valid("apartment", "villa")).single(),
     furnishing: Joi.array().items(Joi.string().valid("unfurnished", "semi_furnished", "fully_furnished")).single(),
 

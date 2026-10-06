@@ -25,8 +25,8 @@ export const getProperties = async (req, res, next) => {
         locality,
         minRent,
         maxRent,
-        bedrooms,
-        bathrooms,
+        minBedrooms,
+        minBathrooms,
         propertyType,
         floorNo,
         totalFloors,
@@ -60,15 +60,18 @@ export const getProperties = async (req, res, next) => {
         conditions.push(`rent <= $${values.length}`);
     }
 
+    // --- Minimum Value Filters ---
+    if (minBedrooms !== undefined) {
+        values.push(minBedrooms);
+        conditions.push(`bedrooms >= $${values.length}`);
+    }
+
+    if (minBathrooms !== undefined) {
+        values.push(minBathrooms);
+        conditions.push(`bathrooms >= $${values.length}`);
+    }
+
     // --- Multi-Select Array Filters (Using ANY) ---
-    if (bedrooms && bedrooms.length > 0) {
-        values.push(bedrooms);
-        conditions.push(`bedrooms = ANY($${values.length})`);
-    }
-    if (bathrooms && bathrooms.length > 0) {
-        values.push(bathrooms);
-        conditions.push(`bathrooms = ANY($${values.length})`);
-    }
     if (propertyType && propertyType.length > 0) {
         values.push(propertyType);
         conditions.push(`property_type = ANY($${values.length})`);
@@ -141,7 +144,7 @@ export const getProperties = async (req, res, next) => {
 
     res.status(200).json({
         count: rows.length,
-        properties:rows
+        properties: rows
     });
 };
 
@@ -159,7 +162,7 @@ export const getProperty = async (req, res, next) => {
         return next(new CustomError(404, 'Property not found'));
     }
 
-    res.status(200).json({ property:rows[0] });
+    res.status(200).json({ property: rows[0] });
 };
 
 export const createProperty = async (req, res, next) => {

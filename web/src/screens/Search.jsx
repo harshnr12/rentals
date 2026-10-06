@@ -30,8 +30,8 @@ function Search() {
         cityId: searchParams.get('cityId') || '',
         locality: searchParams.get('locality') || '',
         propertyType: searchParams.get('propertyType') || '',
-        bedrooms: searchParams.get('bedrooms') || '',
-        bathrooms: searchParams.get('bathrooms') || '',
+        minBedrooms: searchParams.get('minBedrooms') || '',
+        minBathrooms: searchParams.get('minBathrooms') || '',
         furnishing: searchParams.getAll('furnishing'),
         minRent: searchParams.get('minRent') || '',
         maxRent: searchParams.get('maxRent') || '',
@@ -53,8 +53,8 @@ function Search() {
             cityId: searchParams.get('cityId') || '',
             locality: searchParams.get('locality') || '',
             propertyType: searchParams.get('propertyType') || '',
-            bedrooms: searchParams.get('bedrooms') || '',
-            bathrooms: searchParams.get('bathrooms') || '',
+            minBedrooms: searchParams.get('minBedrooms') || '',
+            minBathrooms: searchParams.get('minBathrooms') || '',
             furnishing: searchParams.getAll('furnishing'),
             minRent: searchParams.get('minRent') || '',
             maxRent: searchParams.get('maxRent') || '',
@@ -112,8 +112,8 @@ function Search() {
         if (filters.cityId) newParams.set('cityId', filters.cityId);
         if (filters.locality.trim()) newParams.set('locality', filters.locality.trim());
         if (filters.propertyType) newParams.set('propertyType', filters.propertyType);
-        if (filters.bedrooms) newParams.set('bedrooms', filters.bedrooms);
-        if (filters.bathrooms) newParams.set('bathrooms', filters.bathrooms);
+        if (filters.minBedrooms) newParams.set('minBedrooms', filters.minBedrooms);
+        if (filters.minBathrooms) newParams.set('minBathrooms', filters.minBathrooms);
 
         filters.furnishing.forEach((item) => newParams.append('furnishing', item));
 
@@ -178,7 +178,7 @@ function Search() {
                     </select>
 
                     <label><strong>Min</strong> Bedrooms</label>
-                    <select name="bedrooms" value={filters.bedrooms} onChange={handleChange}>
+                    <select name="minBedrooms" value={filters.minBedrooms} onChange={handleChange}>
                         <option value="">Any</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
@@ -188,7 +188,7 @@ function Search() {
                     </select>
 
                     <label><strong>Min</strong> Bathrooms</label>
-                    <select name="bathrooms" value={filters.bathrooms} onChange={handleChange}>
+                    <select name="minBathrooms" value={filters.minBathrooms} onChange={handleChange}>
                         <option value="">Any</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
