@@ -109,8 +109,10 @@ Base URL: `/api/v1`
 | **Media** | `POST` | `/upload` | User | Upload image |
 | | `GET` | `/images/:filename` | Public | Deliver static property photos (24h cache) |
 
+## Local Development Setup
+
 <details>
-<summary><strong>Local Development Setup</strong></summary>
+<summary><strong>Click to expand instructions</strong></summary>
 
 ### 1. Install Dependencies
 
@@ -173,23 +175,29 @@ node scripts/seed.js
 ### 6. Start the Applications
 
 **For Local Development (with Hot Reloading):**
+
+**Terminal 1 (Backend):**
 ```bash
-# Terminal 1: Start backend server
 cd backend
 npm run dev
+```
 
-# Terminal 2: Start React frontend
+**Terminal 2 (Frontend):**
+```bash
 cd web
 npm run dev
 ```
 
 **For Production Testing:**
+
+**Terminal 1 (Frontend):**
 ```bash
-# Terminal 1: Build the React frontend
 cd web
 npm run build
+```
 
-# Terminal 2: Start the Express backend
+**Terminal 2 (Backend):**
+```bash
 cd backend
 npm start
 ```
