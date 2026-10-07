@@ -114,7 +114,7 @@ Base URL: `/api/v1`
 <details>
 <summary><strong>Click to expand instructions</strong></summary>
 
-### 1. Install Dependencies
+**1. Install Dependencies**
 
 Open two separate terminals from the root `rentals` project folder.
 
@@ -130,14 +130,14 @@ cd web
 npm install
 ```
 
-### 2. Connect to PostgreSQL
+**2. Connect to PostgreSQL**
 Open the PostgreSQL command line client on your operating system:
 
 * **Linux:** `sudo -u postgres psql`
 * **macOS:** `psql postgres`
 * **Windows:** Open SQL Shell (psql) or connect via pgAdmin.
 
-### 3. Create User & Database
+**3. Create User & Database**
 Inside the `psql` console, run:
 ```sql
 CREATE USER your_username WITH PASSWORD 'your_password';
@@ -145,7 +145,7 @@ CREATE DATABASE rentals OWNER your_username;
 \q
 ```
 
-### 4. Configure Environment
+**4. Configure Environment**
 In the `backend` directory, copy `.env.example` to `.env` and fill in your PostgreSQL credentials:
 ```bash
 cp .env.example .env
@@ -165,14 +165,14 @@ DB_PORT=5432
 SECRET_STR=<paste_generated_secret_here>
 ```
 
-### 5. Initialize Schema & Seed Data
+**5. Initialize Schema & Seed Data**
 Execute the schema migration and run the seeder from the `backend` directory:
 ```bash
 psql -U your_username -d rentals -f db/schema.sql
 node scripts/seed.js
 ```
 
-### 6. Start the Applications
+**6. Start the Applications**
 
 **For Local Development (with Hot Reloading):**
 
