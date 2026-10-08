@@ -144,7 +144,7 @@ function PropertyDetails() {
             setContactDetails(data.owner);
 
             // Keep the shared contacted state synchronized with the successful request.
-            addContacted(Number(id));
+            addContacted(property.id);
         }
         catch (err) {
             // The contact limiter returns the exact reset time when the daily limit is reached.
