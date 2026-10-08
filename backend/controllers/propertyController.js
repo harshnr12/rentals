@@ -258,8 +258,9 @@ export const updateProperty = async (req, res, next) => {
     // by normalizePropertyUpdate middleware.
     const existing = req.existingProperty;
 
-    // req.body has already bee// Only delete files in this user's upload namespace (user_<id>_...).
-    // Seed/shared images are never unlinked, since other listings may use them.n normalized and validated.
+    // req.body has already been normalized and validated.
+    // // Only delete files in this user's upload namespace (user_<id>_...).
+    // Seed/shared images are never unlinked, since other listings may use them.
     const {
         cityId,
         locality,

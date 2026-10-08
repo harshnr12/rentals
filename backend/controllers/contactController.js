@@ -1,4 +1,5 @@
 import pool from '../db/pool.js';
+import CustomError from '../utils/CustomError.js';
 
 // GET api/v1/properties/:id/contact
 export const getPropertyContact = async (req, res, next) => {
