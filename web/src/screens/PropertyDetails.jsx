@@ -9,6 +9,7 @@ import {
     deleteProperty
 } from '../services/api.js';
 import './PropertyDetails.css';
+// import '../components/UserCollections.css';
 
 function formatString(str) {
     if (!str) return '';
@@ -33,7 +34,14 @@ function PropertyDetails() {
     const navigate = useNavigate();
 
     const { isLoggedIn } = useContext(AuthContext);
-    const { currentUser, addContacted, loading: userDataLoading } = useContext(UserDataContext);
+    const {
+        currentUser,
+        favoriteIds,
+        contactedIds,
+        toggleFavorite,
+        addContacted,
+        loading: userDataLoading
+    } = useContext(UserDataContext);
 
     const [property, setProperty] = useState(null);
     const [pageLoading, setPageLoading] = useState(true);
@@ -176,6 +184,13 @@ function PropertyDetails() {
             setDeleting(false);
         }
     }
+    async function handleFavClick() {
+        try {
+            await toggleFavorite(property.id);
+        } catch (err) {
+            console.error('Failed to toggle favorite:', err);
+        }
+    }
 
     if (pageLoading) {
         return (
@@ -201,14 +216,41 @@ function PropertyDetails() {
             </main>
         );
     }
+
     const hasPhotos = property.photos && property.photos.length > 0;
+    const isFavorite = favoriteIds.has(property.id);
+    const isContacted = contactedIds.has(property.id);
 
     return (
         <main className="property-details-page">
             {/* 1. TITLE AND LOCATION AT THE VERY TOP */}
             <div className="details-header top-header">
-                <h1>{property.title}</h1>
-                <p className="location">{property.locality}</p>
+                <div className="title-block">
+                    <h1>{property.title}</h1>
+                    <p className="location">{property.locality}</p>
+                </div>
+
+                {/* Contact status and favorite action, only for logged-in users */}
+                {isLoggedIn && (
+                    <div className="title-actions">
+                        {isContacted && (
+                            <span className="collection-badge">✓ Contacted</span>
+                        )}
+
+                        {!isOwner && !userDataLoading && (
+                            <button
+                                type="button"
+                                className={`details-fav-btn ${isFavorite ? 'active' : ''}`}
+                                onClick={handleFavClick}
+                                aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                            >
+                                <svg viewBox="0 0 24 24" className="details-heart-icon">
+                                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
+                )}
             </div>
             {/* 2. FULL WIDTH GALLERY (Main Image Left, Thumbnails Right) */}
             <div className="gallery-wrapper">
