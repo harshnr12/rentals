@@ -1,6 +1,7 @@
 import multer from 'multer';
 import path from 'path';
 import crypto from 'node:crypto';
+import CustomError from '../utils/CustomError.js';
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -16,7 +17,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    // 1. Define the exact same allowed types as your configController
+    // 1. Exact same allowed types as configController
     const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
 
     // 2. Strictly check against the array
@@ -24,7 +25,10 @@ const fileFilter = (req, file, cb) => {
         cb(null, true);
     } else {
         // 3. Reject anything else (like SVGs or GIFs)
-        cb(new Error('Invalid file type. Only JPG, PNG, and WEBP are allowed.'), false);
+        cb(
+            new CustomError(400, 'Invalid file type. Only JPG, PNG, and WEBP are allowed.'),
+            false
+        );
     }
 };
 
