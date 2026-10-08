@@ -58,15 +58,17 @@ function UserDataProvider({ children }) {
 
     // Centralized toggle: calls API and updates local Set
     const toggleFavorite = async (propertyId) => {
-        const isFav = favoriteIds.has(propertyId);
         try {
-            await apiToggleFavorite(propertyId);
+            const data = await apiToggleFavorite(propertyId);
+
+            // Server reply is the source of truth. Deciding from the local set
+            // would use a stale value when two taps happen before the first reply.
             setFavoriteIds((prev) => {
                 const updated = new Set(prev);
-                if (isFav) {
-                    updated.delete(propertyId);
-                } else {
+                if (data.favorited) {
                     updated.add(propertyId);
+                } else {
+                    updated.delete(propertyId);
                 }
                 return updated;
             });
@@ -75,7 +77,6 @@ function UserDataProvider({ children }) {
             throw err;
         }
     };
-
     const addContacted = (propertyId) => {
         setContactedIds((prev) => {
             const updated = new Set(prev);
