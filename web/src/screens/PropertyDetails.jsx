@@ -9,7 +9,7 @@ import {
     deleteProperty
 } from '../services/api.js';
 import './PropertyDetails.css';
-// import '../components/UserCollections.css';
+import '../components/UserCollections.css';
 
 function formatString(str) {
     if (!str) return '';
