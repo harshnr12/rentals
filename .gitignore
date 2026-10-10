@@ -1,91 +1,103 @@
-# ==========================================
-# Node.js (Backend & React/Vite)
-# ==========================================
-node_modules/
-node_modules
-.eslintcache
-
-# ==========================================
-# Environment Variables & Secrets (CRITICAL)
-# ==========================================
+# ==============================================================================
+# Environment Variables, Secrets & Credentials (CRITICAL)
+# ==============================================================================
+# Environment files across root, backend, and frontend
 .env
 .env.*
 !.env.example
+
+# Android signing keys, keystores, and certificate files
 *.keystore
 *.jks
+signing.properties
 
-# ==========================================
-# Editors & IDEs (VS Code, VSCodium, Sublime, Android Studio)
-# ==========================================
-# VS Code & VSCodium workspaces and caches
-.vscode/
-.vscode-oss/
+# Google Services / Firebase credentials (if added later)
+google-services.json
+
+
+# ==============================================================================
+# Monorepo Sub-projects: Node.js (Express Backend & React/Vite Frontend)
+# ==============================================================================
+# Node dependency folders (covers root, backend/, and frontend/)
+**/node_modules/
+.eslintcache
+
+# Production web build artifacts
+**/dist/
+**/dist-ssr/
+*.local
+
+
+# ==============================================================================
+# Monorepo Sub-projects: Android Native Client (rentals/android)
+# ==============================================================================
+# Gradle build cache and system directories
+**/.gradle/
+**/build/
+
+# Local machine SDK paths and private IP configuration (DO NOT COMMIT)
+**/local.properties
+default.size.properties
+
+# Android C/C++ build artifacts & profiler captures
+**/.cxx/
+**/captures/
+
+# Android Testing, Lint, and Report outputs
+lint/intermediates/
+lint/generated/
+lint/outputs/
+
+# Packaged Android application files
+*.apk
+*.aab
+
+# Ensure Gradle wrapper JAR is ALWAYS tracked by Git
+!**/gradle/wrapper/gradle-wrapper.jar
+
+
+# ==============================================================================
+# Editors, IDEs & Workspaces (VSCodium, VS Code, Android Studio)
+# ==============================================================================
+# VS Code / VSCodium workspace configurations and history
+**/.vscode/
+**/.vscode-oss/
 *.code-workspace
 .history/
 
-# Android Studio / IntelliJ IDEA
-.idea/
-.idea
-*.iml
-*.iws
+# IntelliJ / Android Studio project files (matches root and android/.idea/)
+**/.idea/
+**/*.iml
+**/*.iws
 out/
 
-# Sublime Text project workspaces and session state
+# Sublime Text workspaces
 *.sublime-project
 *.sublime-workspace
 sftp-config.json
 
-# Visual Studio & Windows project files
+# Visual Studio temporary files
 *.sln
 *.suo
 *.ntvs*
 *.njsproj
 
-# General temporary files
+
+# ==============================================================================
+# Operating System & Diagnostic Logs
+# ==============================================================================
+# Linux / macOS / Windows system files
+.DS_Store
+Thumbs.db
 *.swp
 *.sw?
 *~
-.DS_Store
-Thumbs.db
 
-# ==========================================
-# Logs & Debugging
-# ==========================================
+# Log files across all environments
 *.log
-logs/
-logs
-*.log.*
+**/logs/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
-# ==========================================
-# React + Vite Production Builds (Web)
-# ==========================================
-dist/
-dist
-dist-ssr/
-dist-ssr
-*.local
-
-# ==========================================
-# Android & Gradle (CLI / Terminal Builds)
-# ==========================================
-.gradle/
-build/
-**/build/
-*.apk
-*.aab
-
-# Local Android SDK paths and licenses
-local.properties
-.cxx/
-captures/
-default.size.properties
-
-# Android Testing and Lint artifacts
-lint/intermediates/
-lint/generated/
-lint/outputs/
