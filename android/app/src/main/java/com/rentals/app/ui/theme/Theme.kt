@@ -22,7 +22,15 @@ private val LightColorScheme = lightColorScheme(
     outline = BorderColor,
     outlineVariant = OutlineVariantColor,
     error = Danger,
-    onError = OnError
+    onError = OnError,
+
+    // used for app palette else Material3 defaults these to lavender tones
+    surfaceContainerLowest = SurfaceColor,
+    surfaceContainerLow = SurfaceColor,
+    surfaceContainer = SurfaceColor,
+    surfaceContainerHigh = SurfaceColor,
+    surfaceContainerHighest = SurfaceColor,
+    surfaceTint = SurfaceColor
 )
 
 private val RentalsShapes = Shapes(
