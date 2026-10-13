@@ -1,7 +1,6 @@
 package com.rentals.app.ui.navigation
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +17,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 
-// All screens live here, like the routes in App.jsx
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
@@ -32,10 +30,9 @@ fun AppNavGraph() {
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
-            // Scaffold already adds the status and navigation bar space. Consuming it here lets
-            // imePadding() inside screens add only the keyboard height.
-            modifier = Modifier.padding(innerPadding).consumeWindowInsets(innerPadding)
+            modifier = Modifier.padding(innerPadding)
         ) {
+            // Main Bottom Tabs
             composable(Routes.HOME) { Placeholder("Home") }
             composable(
                 route = Routes.SEARCH,
@@ -50,24 +47,20 @@ fun AppNavGraph() {
             composable(Routes.FAVORITES) { Placeholder("Favorites") }
             composable(Routes.PROFILE) { Placeholder("Profile") }
 
+            // User & Auth Flow
             composable(Routes.LOGIN) { Placeholder("Login") }
             composable(Routes.SIGNUP) { Placeholder("Signup") }
             composable(Routes.CONTACTED) { Placeholder("Contacted") }
             composable(Routes.MY_LISTINGS) { Placeholder("My Listings") }
             composable(Routes.ADD_PROPERTY) { Placeholder("Add Property") }
-            composable(
-                route = Routes.DETAILS,
-                arguments = listOf(navArgument("id") { type = NavType.StringType })
-            ) { Placeholder("Details") }
-            composable(
-                route = Routes.EDIT_PROPERTY,
-                arguments = listOf(navArgument("id") { type = NavType.StringType })
-            ) { Placeholder("Edit Property") }
+
+            // Path param {id} is automatically StringType by default
+            composable(Routes.DETAILS) { Placeholder("Details") }
+            composable(Routes.EDIT_PROPERTY) { Placeholder("Edit Property") }
         }
     }
 }
 
-// Temporary: replaced by the real screen later
 @Composable
 private fun Placeholder(name: String) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
