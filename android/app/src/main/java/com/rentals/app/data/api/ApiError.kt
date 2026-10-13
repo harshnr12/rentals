@@ -44,6 +44,6 @@ suspend fun <T> apiCall(block: suspend () -> T): Result<T> =
         Result.success(block())
     } catch (e: CancellationException) {
         throw e // Let Compose and ViewModel manage lifecycle cancellation
-    } catch (e: Throwable) {
-        Result.failure(e) // Safely catch EVERYTHING else, including fatal network errors
+    } catch (e: Exception) {
+        Result.failure(e) // Any other failure becomes a failed Result
     }

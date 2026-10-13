@@ -6,7 +6,6 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.rentals.app.RentalsApp
 import com.rentals.app.data.api.ApiClient
-import com.rentals.app.data.api.apiCall
 import com.rentals.app.data.models.LoginRequest
 import com.rentals.app.data.models.SignupRequest
 import kotlinx.coroutines.CoroutineScope
@@ -31,18 +30,17 @@ object AuthRepository {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    // Wrapped in apiCall so the ViewModel receives Result.success or Result.failure
-    suspend fun login(email: String, password: String): Result<Unit> = apiCall {
+    // Failures are thrown. The ViewModel wraps the call in apiCall { }, same rule as every other repository.
+    suspend fun login(email: String, password: String) {
         val response = ApiClient.service.login(LoginRequest(email, password))
         saveToken(response.token)
     }
 
-    // Same reason this MUST also be WRAPPED
-    suspend fun signup(name: String, email: String, password: String, phone: String): Result<Unit> = apiCall {
+    suspend fun signup(name: String, email: String, password: String, phone: String) {
         val response = ApiClient.service.signup(SignupRequest(name, email, password, phone))
         saveToken(response.token)
     }
-
+    
     // Safe to call many times: parallel 401 responses all end up here
     fun logout() {
         if (_token.value == null) return
