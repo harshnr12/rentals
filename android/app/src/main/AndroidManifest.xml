@@ -4,6 +4,7 @@
     <!-- Network access permission Mandatory for Retrofit/OkHttp calls -->
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <!--  Runs AuthRepository.init() -->
     <application
         android:name=".RentalsApp"
         android:allowBackup="false"
@@ -12,6 +13,7 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.Material.Light.NoActionBar"
         android:usesCleartextTraffic="true">
+         <!--  Allows http://192.168.43.150 android:allowBackup="false" -->
 
         <activity
             android:name=".MainActivity"

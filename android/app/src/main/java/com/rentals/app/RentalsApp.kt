@@ -1,8 +1,7 @@
 package com.rentals.app
 
 import android.app.Application
-import com.rentals.app.data.repository.ConfigRepository
-import com.rentals.app.data.repository.UserDataRepository
+import com.rentals.app.data.repository.AuthRepository
 
 class RentalsApp : Application() {
 
@@ -10,11 +9,9 @@ class RentalsApp : Application() {
         super.onCreate()
         instance = this
 
-        // Like the providers in main.jsx: they start once and live as long as the app process
-        ConfigRepository.load()
-        UserDataRepository.start()
+        // Initializes sandboxed SharedPreferences once for the entire application session
+        AuthRepository.init(this)
     }
-
     companion object {
         lateinit var instance: RentalsApp
             private set

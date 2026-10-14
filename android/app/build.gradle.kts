@@ -13,7 +13,7 @@ val localProps = Properties().apply {
         load(file.inputStream())
     }
 }
-val apiBaseUrl: String = localProps.getProperty("API_BASE_URL") ?: "http://192.168.43.150:8000/"
+val apiBaseUrl: String = localProps.getProperty("API_BASE_URL") ?: "http://192.168.43.150:8000/api/v1/"
 
 android {
     namespace = "com.rentals.app"
@@ -84,6 +84,4 @@ dependencies {
     // Image Loading: Coil Compose
     implementation("io.coil-kt:coil-compose:2.7.0")
 
-    // Secure Storage for jwt Auth Tokens: EncryptedSharedPreferences
-    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

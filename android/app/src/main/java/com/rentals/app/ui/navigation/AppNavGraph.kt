@@ -7,21 +7,44 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.rentals.app.data.repository.AuthRepository
+import com.rentals.app.data.repository.ConfigRepository
+import com.rentals.app.data.repository.UserDataRepository
 
 @Composable
 fun AppNavGraph() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val showBottomBar = isTabRoute(backStackEntry?.destination?.route)
+
+    val token by AuthRepository.token.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        ConfigRepository.load()
+    }
+
+    LaunchedEffect(token) {
+        if (token != null) {
+            try {
+                UserDataRepository.load()
+            } catch (_: Exception) {
+                // Screen-level state handles display
+            }
+        } else {
+            UserDataRepository.clear()
+        }
+    }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -32,7 +55,6 @@ fun AppNavGraph() {
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding)
         ) {
-            // Main Bottom Tabs
             composable(Routes.HOME) { Placeholder("Home") }
             composable(
                 route = Routes.SEARCH,
@@ -47,14 +69,12 @@ fun AppNavGraph() {
             composable(Routes.FAVORITES) { Placeholder("Favorites") }
             composable(Routes.PROFILE) { Placeholder("Profile") }
 
-            // User & Auth Flow
             composable(Routes.LOGIN) { Placeholder("Login") }
             composable(Routes.SIGNUP) { Placeholder("Signup") }
             composable(Routes.CONTACTED) { Placeholder("Contacted") }
             composable(Routes.MY_LISTINGS) { Placeholder("My Listings") }
             composable(Routes.ADD_PROPERTY) { Placeholder("Add Property") }
 
-            // Path param {id} is automatically StringType by default
             composable(Routes.DETAILS) { Placeholder("Details") }
             composable(Routes.EDIT_PROPERTY) { Placeholder("Edit Property") }
         }
