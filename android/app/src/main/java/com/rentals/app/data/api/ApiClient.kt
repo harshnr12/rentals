@@ -13,7 +13,12 @@ import retrofit2.converter.gson.GsonConverterFactory
 object ApiClient {
 
     // Normalizes the host URL and appends the Express router prefix with a trailing slash
-    private val BASE_URL = "${BuildConfig.API_BASE_URL.trimEnd('/')}/api/v1/"
+    private val HOST_URL = BuildConfig.API_BASE_URL.trimEnd('/')
+    private val BASE_URL = "$HOST_URL/api/v1/"
+
+    // Resolves relative backend asset paths (e.g. /uploads/photo.jpg) against the host root
+    fun imageUrl(path: String): String =
+        if (path.startsWith("http")) path else "$HOST_URL/${path.trimStart('/')}"
 
     // Injects the current JWT bearer token into outgoing requests
     private val authInterceptor = Interceptor { chain ->
