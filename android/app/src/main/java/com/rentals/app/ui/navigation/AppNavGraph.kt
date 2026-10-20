@@ -21,6 +21,7 @@ import androidx.navigation.navArgument
 import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.ConfigRepository
 import com.rentals.app.data.repository.UserDataRepository
+import com.rentals.app.ui.screens.home.HomeScreen
 
 @Composable
 fun AppNavGraph() {
@@ -55,7 +56,7 @@ fun AppNavGraph() {
             startDestination = Routes.HOME,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Routes.HOME) { Placeholder("Home") }
+            composable(Routes.HOME) { HomeScreen(navController) }
             composable(
                 route = Routes.SEARCH,
                 arguments = listOf(
