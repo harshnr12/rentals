@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.dp
 
 private val LightColorScheme =
     lightColorScheme(
@@ -36,11 +37,11 @@ private val LightColorScheme =
 
 private val RentalsShapes =
     Shapes(
-        extraSmall = RoundedCornerShape(Dimens.RadiusSmall),
-        small = RoundedCornerShape(Dimens.Radius),
-        medium = RoundedCornerShape(Dimens.Radius),
-        large = RoundedCornerShape(Dimens.RadiusLarge),
-        extraLarge = RoundedCornerShape(Dimens.RadiusLarge),
+        extraSmall = RoundedCornerShape(4.dp),
+        small = RoundedCornerShape(8.dp),
+        medium = RoundedCornerShape(8.dp),
+        large = RoundedCornerShape(12.dp),
+        extraLarge = RoundedCornerShape(12.dp),
     )
 
 @Composable

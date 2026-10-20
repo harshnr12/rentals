@@ -34,6 +34,7 @@ google-services.json
 # Gradle build cache and system directories
 **/.gradle/
 **/build/
+**/.kotlin/
 
 # Local machine SDK paths and private IP configuration (DO NOT COMMIT)
 **/local.properties
