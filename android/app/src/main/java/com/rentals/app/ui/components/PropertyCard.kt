@@ -25,7 +25,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -40,18 +39,17 @@ import com.rentals.app.data.models.Property
 import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.UserDataRepository
 import com.rentals.app.ui.navigation.Routes
-import kotlinx.coroutines.launch
 
 @Composable
 fun PropertyCard(
     property: Property,
     cityName: String,
     navController: NavController,
-    modifier: Modifier = Modifier,
+    onFavoriteClick: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val token by AuthRepository.token.collectAsStateWithLifecycle()
     val userData by UserDataRepository.state.collectAsStateWithLifecycle()
-    val scope = rememberCoroutineScope()
 
     val isLoggedIn = !token.isNullOrBlank()
     val isOwner = userData.currentUser != null && userData.currentUser?.id == property.ownerId
@@ -65,28 +63,28 @@ fun PropertyCard(
         modifier = modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
     ) {
         // 1. Image Box with Overlays (.img-box)
         Box(
-            modifier =
-                Modifier.fillMaxWidth()
-                    .height(190.dp)
-                    .background(MaterialTheme.colorScheme.outlineVariant)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(190.dp)
+                .background(MaterialTheme.colorScheme.outlineVariant)
         ) {
             if (photoUrl != null) {
                 AsyncImage(
                     model = photoUrl,
                     contentDescription = property.title,
                     modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop,
+                    contentScale = ContentScale.Crop
                 )
             } else {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
                         text = "No Image",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
             }
@@ -94,15 +92,17 @@ fun PropertyCard(
             // Contacted Badge (.contacted-badge)
             if (isLoggedIn && isContacted) {
                 Surface(
-                    modifier = Modifier.align(Alignment.TopStart).padding(10.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp),
                     shape = MaterialTheme.shapes.small,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
                 ) {
                     Text(
                         text = "✓ Contacted",
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -110,9 +110,12 @@ fun PropertyCard(
             // Owner Edit or Visitor Favorite Button (.fav-btn)
             if (isLoggedIn) {
                 Surface(
-                    modifier = Modifier.align(Alignment.TopEnd).padding(10.dp).size(36.dp),
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                        .size(36.dp),
                     shape = CircleShape,
-                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = 0.9f)
                 ) {
                     if (isOwner) {
                         IconButton(
@@ -122,30 +125,18 @@ fun PropertyCard(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit Listing",
                                 tint = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(18.dp),
+                                modifier = Modifier.size(18.dp)
                             )
                         }
                     } else {
                         IconButton(
-                            onClick = {
-                                scope.launch {
-                                    try {
-                                        UserDataRepository.toggleFavorite(property.id)
-                                    } catch (_: Exception) {
-                                        // Silent failure; icon stays in server-truth state
-                                    }
-                                }
-                            }
+                            onClick = { onFavoriteClick(property.id) }
                         ) {
                             Icon(
-                                imageVector =
-                                    if (isFavorite) Icons.Filled.Favorite
-                                    else Icons.Outlined.FavoriteBorder,
+                                imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                                 contentDescription = "Toggle Favorite",
-                                tint =
-                                    if (isFavorite) MaterialTheme.colorScheme.error
-                                    else MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.size(20.dp),
+                                tint = if (isFavorite) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
@@ -156,14 +147,14 @@ fun PropertyCard(
         // 2. Property Info Section (.info)
         Column(
             modifier = Modifier.padding(14.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Text(
                 text = property.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
 
             Text(
@@ -171,7 +162,7 @@ fun PropertyCard(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis
             )
 
             // Tags (.tags)
@@ -181,17 +172,20 @@ fun PropertyCard(
             }
 
             // Price (.price)
-            Row(verticalAlignment = Alignment.Bottom, modifier = Modifier.padding(top = 2.dp)) {
+            Row(
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier.padding(top = 2.dp)
+            ) {
                 Text(
                     text = "₹${property.rent}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = " / mo",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
@@ -203,13 +197,13 @@ private fun TagChip(label: String) {
     if (label.isBlank()) return
     Surface(
         shape = MaterialTheme.shapes.extraSmall,
-        color = MaterialTheme.colorScheme.outlineVariant,
+        color = MaterialTheme.colorScheme.outlineVariant
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurface,
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
