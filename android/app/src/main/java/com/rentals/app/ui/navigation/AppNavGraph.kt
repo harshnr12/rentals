@@ -22,6 +22,9 @@ import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.ConfigRepository
 import com.rentals.app.data.repository.UserDataRepository
 import com.rentals.app.ui.screens.home.HomeScreen
+import com.rentals.app.ui.screens.auth.LoginScreen
+import com.rentals.app.ui.screens.auth.SignupScreen
+import com.rentals.app.ui.screens.search.SearchScreen
 
 @Composable
 fun AppNavGraph() {
@@ -66,12 +69,13 @@ fun AppNavGraph() {
                         defaultValue = null
                     }
                 )
-            ) { Placeholder("Search") }
+            ) { SearchScreen(navController) }
+            composable(Routes.LOGIN) { LoginScreen(navController) }
+            composable(Routes.SIGNUP) { SignupScreen(navController) }
+
             composable(Routes.FAVORITES) { Placeholder("Favorites") }
             composable(Routes.PROFILE) { Placeholder("Profile") }
 
-            composable(Routes.LOGIN) { Placeholder("Login") }
-            composable(Routes.SIGNUP) { Placeholder("Signup") }
             composable(Routes.CONTACTED) { Placeholder("Contacted") }
             composable(Routes.MY_LISTINGS) { Placeholder("My Listings") }
             composable(Routes.ADD_PROPERTY) { Placeholder("Add Property") }
