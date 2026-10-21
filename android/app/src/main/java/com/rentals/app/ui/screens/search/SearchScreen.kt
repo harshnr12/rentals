@@ -120,9 +120,9 @@ fun SearchScreen(
                         // City
                         SelectField(
                             label = "City",
-                            selectedLabel = cities.find { it.id.toString() == filters.cityId }?.name ?: "All Cities",
+                            selectedLabel = cities.find { it.id == filters.cityId }?.name ?: "All Cities",
                             options = listOf("" to "All Cities") + cities.map { it.id.toString() to it.name },
-                            onSelect = { id -> viewModel.updateFilters { it.copy(cityId = id) } }
+                            onSelect = { id -> viewModel.updateFilters { it.copy(cityId = id.toIntOrNull()) } }
                         )
 
                         // Locality

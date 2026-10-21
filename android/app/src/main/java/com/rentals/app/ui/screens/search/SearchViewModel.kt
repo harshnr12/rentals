@@ -3,32 +3,16 @@ package com.rentals.app.ui.screens.search
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentals.app.data.api.ApiClient
 import com.rentals.app.data.api.errorMessage
 import com.rentals.app.data.models.Property
+import com.rentals.app.data.models.SearchFilters
+import com.rentals.app.data.repository.PropertyRepository
 import com.rentals.app.data.repository.UserDataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-data class SearchFilters(
-    val cityId: String = "",
-    val locality: String = "",
-    val propertyType: String = "",
-    val minBedrooms: String = "",
-    val minBathrooms: String = "",
-    val furnishing: Set<String> = emptySet(),
-    val minRent: String = "",
-    val maxRent: String = "",
-    val hasParking: Boolean = false,
-    val hasLift: Boolean = false,
-    val allowSingleMale: Boolean = false,
-    val allowSingleFemale: Boolean = false,
-    val allowFamily: Boolean = false,
-    val sort: String = "newest"
-)
 
 data class SearchUiState(
     val filters: SearchFilters = SearchFilters(),
@@ -41,7 +25,7 @@ data class SearchUiState(
 // from SavedStateHandle (the Android equivalent of React Router's useSearchParams)
 // and fetches matching properties on initialization.
 class SearchViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
-    private val initialCityId = savedStateHandle.get<String>("cityId").orEmpty()
+    private val initialCityId = savedStateHandle.get<String>("cityId")?.toIntOrNull()
 
     private val _state = MutableStateFlow(
         SearchUiState(filters = SearchFilters(cityId = initialCityId))
@@ -58,9 +42,13 @@ class SearchViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
 
     fun toggleFurnishing(type: String) {
         _state.update { current ->
-            val currentSet = current.filters.furnishing
-            val updatedSet = if (currentSet.contains(type)) currentSet - type else currentSet + type
-            current.copy(filters = current.filters.copy(furnishing = updatedSet))
+            val currentList = current.filters.furnishing
+            val updatedList = if (currentList.contains(type)) {
+                currentList - type
+            } else {
+                currentList + type
+            }
+            current.copy(filters = current.filters.copy(furnishing = updatedList))
         }
     }
 
@@ -77,24 +65,8 @@ class SearchViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
             try {
-                val f = _state.value.filters
-                val response = ApiClient.service.getProperties(
-                    cityId = f.cityId.toIntOrNull(),
-                    locality = f.locality.trim().ifBlank { null },
-                    minRent = f.minRent.toIntOrNull(),
-                    maxRent = f.maxRent.toIntOrNull(),
-                    minBedrooms = f.minBedrooms.toIntOrNull(),
-                    minBathrooms = f.minBathrooms.toIntOrNull(),
-                    propertyType = f.propertyType.ifBlank { null },
-                    furnishing = f.furnishing.toList().ifEmpty { null },
-                    hasParking = if (f.hasParking) true else null,
-                    hasLift = if (f.hasLift) true else null,
-                    allowSingleMale = if (f.allowSingleMale) true else null,
-                    allowSingleFemale = if (f.allowSingleFemale) true else null,
-                    allowFamily = if (f.allowFamily) true else null,
-                    sort = f.sort.ifBlank { null }
-                )
-                _state.update { it.copy(properties = response.properties, loading = false) }
+                val properties = PropertyRepository.getProperties(_state.value.filters)
+                _state.update { it.copy(properties = properties, loading = false) }
             } catch (e: Exception) {
                 _state.update { it.copy(loading = false, error = errorMessage(e)) }
             }

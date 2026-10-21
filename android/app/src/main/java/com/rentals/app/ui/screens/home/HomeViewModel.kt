@@ -2,7 +2,7 @@ package com.rentals.app.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rentals.app.data.api.ApiClient
+import com.rentals.app.data.repository.PropertyRepository
 import com.rentals.app.data.api.errorMessage
 import com.rentals.app.data.models.Property
 import com.rentals.app.data.repository.UserDataRepository
@@ -33,9 +33,9 @@ class HomeViewModel : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(loading = true, error = null) }
             try {
-                val response = ApiClient.service.getProperties()
+                val properties = PropertyRepository.getProperties()
                 _state.update {
-                    it.copy(properties = response.properties, loading = false)
+                    it.copy(properties = properties, loading = false)
                 }
             } catch (e: Exception) {
                 _state.update {
