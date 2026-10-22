@@ -17,6 +17,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.rentals.app.data.models.Property
 import com.rentals.app.data.repository.ConfigRepository
+import androidx.compose.runtime.remember
 
 @Composable
 fun PropertyList(
@@ -33,11 +34,11 @@ fun PropertyList(
     val configState by ConfigRepository.state.collectAsStateWithLifecycle()
     val cities = configState.config?.options?.cities.orEmpty()
 
-    // Resolves cityName from ConfigRepository.state just like PropertyList.jsx
-    fun getCityName(cityId: Int): String {
-        return cities.find { it.id == cityId }?.name.orEmpty()
+    // Build the city ID -> city name map only when the cities list changes.
+    // remember() reuses the existing map during ordinary recompositions.
+    val cityNames = remember(cities) {
+        cities.associate { city -> city.id to city.name }
     }
-
     LazyColumn(
         modifier = modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
@@ -95,7 +96,8 @@ fun PropertyList(
                 items(properties, key = { it.id }) { property ->
                     PropertyCard(
                         property = property,
-                        cityName = getCityName(property.cityId),
+                        // Look up the city name by ID. Return "" if the ID is not found.
+                        cityName = cityNames[property.cityId].orEmpty(),
                         navController = navController,
                         onFavoriteClick = onFavoriteClick
                     )
