@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.compose.foundation.layout.imePadding
 import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.ConfigRepository
 import com.rentals.app.data.repository.UserDataRepository
@@ -58,7 +59,8 @@ fun AppNavGraph() {
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding).imePadding()
+            // Automatically pushes scrollable screens above the keyboard
         ) {
             composable(Routes.HOME) { HomeScreen(navController) }
             composable(
