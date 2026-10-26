@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rentals.app.data.api.errorMessage
 import com.rentals.app.data.models.Property
-import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.PropertyRepository
 import com.rentals.app.data.repository.UserDataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,22 +18,12 @@ data class FavoritesUiState(
     val error: String? = null
 )
 
-// Just like Favorites.jsx and also filters out any property whose
-// heart icon is un-toggled by the user so the list updates immediately.
 class FavoritesViewModel : ViewModel() {
     private val _state = MutableStateFlow(FavoritesUiState())
     val state: StateFlow<FavoritesUiState> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            AuthRepository.token.collect { token ->
-                if (!token.isNullOrBlank()) {
-                    loadFavorites()
-                } else {
-                    _state.value = FavoritesUiState(loading = false)
-                }
-            }
-        }
+        loadFavorites()
     }
 
     fun loadFavorites() {

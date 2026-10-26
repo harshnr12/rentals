@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rentals.app.data.api.errorMessage
 import com.rentals.app.data.models.Property
-import com.rentals.app.data.repository.AuthRepository
 import com.rentals.app.data.repository.PropertyRepository
 import com.rentals.app.data.repository.UserDataRepository
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,15 +23,7 @@ class MyListingsViewModel : ViewModel() {
     val state: StateFlow<MyListingsUiState> = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            AuthRepository.token.collect { token ->
-                if (!token.isNullOrBlank()) {
-                    loadMyListings()
-                } else {
-                    _state.value = MyListingsUiState(loading = false)
-                }
-            }
-        }
+        loadMyListings()
     }
 
     fun loadMyListings() {

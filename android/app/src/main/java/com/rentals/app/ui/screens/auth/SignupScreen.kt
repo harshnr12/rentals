@@ -137,7 +137,8 @@ fun SignupScreen(
                     onClick = {
                         viewModel.signup(name, email, password, phone) {
                             navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.HOME) { inclusive = true }
+                                popUpTo(Routes.HOME) { inclusive = false }
+                                launchSingleTop = true
                             }
                         }
                     },

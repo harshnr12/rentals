@@ -116,7 +116,8 @@ fun LoginScreen(
                     onClick = {
                         viewModel.login(email, password) {
                             navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.HOME) { inclusive = true }
+                                popUpTo(Routes.HOME) { inclusive = false }
+                                launchSingleTop = true
                             }
                         }
                     },

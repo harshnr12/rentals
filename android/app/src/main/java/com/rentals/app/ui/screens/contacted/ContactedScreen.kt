@@ -13,10 +13,7 @@ import com.rentals.app.ui.components.GuestPromptCard
 import com.rentals.app.ui.components.PropertyList
 
 @Composable
-fun ContactedScreen(
-    navController: NavController,
-    viewModel: ContactedViewModel = viewModel()
-) {
+fun ContactedScreen(navController: NavController) {
     val token by AuthRepository.token.collectAsStateWithLifecycle()
 
     if (token.isNullOrBlank()) {
@@ -29,6 +26,7 @@ fun ContactedScreen(
         return
     }
 
+    val viewModel: ContactedViewModel = viewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val badgeText = if (!state.loading && state.error == null) {
         "${state.properties.size} active • ${state.lifetimeCount} lifetime inquiries"

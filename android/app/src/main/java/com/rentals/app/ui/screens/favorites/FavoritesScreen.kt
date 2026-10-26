@@ -13,10 +13,7 @@ import com.rentals.app.ui.components.GuestPromptCard
 import com.rentals.app.ui.components.PropertyList
 
 @Composable
-fun FavoritesScreen(
-    navController: NavController,
-    viewModel: FavoritesViewModel = viewModel()
-) {
+fun FavoritesScreen(navController: NavController) {
     val token by AuthRepository.token.collectAsStateWithLifecycle()
 
     if (token.isNullOrBlank()) {
@@ -29,6 +26,7 @@ fun FavoritesScreen(
         return
     }
 
+    val viewModel: FavoritesViewModel = viewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val count = state.properties.size
     val badgeText = if (!state.loading && state.error == null) {

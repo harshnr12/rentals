@@ -14,10 +14,7 @@ import com.rentals.app.ui.components.PropertyList
 import com.rentals.app.ui.navigation.Routes
 
 @Composable
-fun MyListingsScreen(
-    navController: NavController,
-    viewModel: MyListingsViewModel = viewModel()
-) {
+fun MyListingsScreen(navController: NavController) {
     val token by AuthRepository.token.collectAsStateWithLifecycle()
 
     if (token.isNullOrBlank()) {
@@ -30,6 +27,7 @@ fun MyListingsScreen(
         return
     }
 
+    val viewModel: MyListingsViewModel = viewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val count = state.properties.size
     val badgeText = if (!state.loading && state.error == null) {
