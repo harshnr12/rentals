@@ -25,6 +25,9 @@ data class FieldRule(
     val default: Boolean? = null
 )
 
+// Server-Driven UI (SDUI) contract: maps dynamic validation rules, min bounds,
+// and required asterisks from /api/v1/config to keep business constraints
+// synchronized across Android and Web without hardcoding them in the client.
 data class FieldValidation(
     val cityId: FieldRule? = null,
     val locality: FieldRule? = null,

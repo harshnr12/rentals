@@ -21,6 +21,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 object PropertyRepository {
 
     // Broadcasts an event whenever property data is mutated
+    // extraBufferCapacity = 1 enables non-suspending tryEmit() to reliably
+    // queue a refresh signal without dropping events or blocking callers.
     private val _propertyUpdates = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
     val propertyUpdates = _propertyUpdates.asSharedFlow()
 
