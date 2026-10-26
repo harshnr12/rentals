@@ -60,6 +60,7 @@ import com.rentals.app.data.repository.ConfigRepository
 import com.rentals.app.ui.components.GuestPromptCard
 import com.rentals.app.ui.navigation.Routes
 
+
 private fun formatOptionLabel(str: String): String {
     if (str.isBlank()) return ""
     return str.split("_").joinToString(" ") { word ->
@@ -509,26 +510,21 @@ fun PropertyFormScreen(navController: NavController) {
                         Text("Cancel")
                     }
 
+                    val buttonText = when {
+                        state.submitLoading && state.isEditMode -> "Saving..."
+                        state.submitLoading -> "Posting..."
+                        state.isEditMode -> "Save Changes"
+                        else -> "Post Property"
+                    }
+
                     Button(
                         onClick = {
-                            viewModel.submit { isEdit, propertyId ->
-                                if (isEdit && propertyId != null) {
-                                    // 1. Always remove the Edit Form itself
-                                    navController.popBackStack()
-                                    // 2. If the screen underneath was already an old Details screen, remove it too so we don't have two Details screens
-                                    if (navController.currentBackStackEntry?.destination?.route == Routes.DETAILS) {
-                                        navController.popBackStack()
-                                    }
-                                    // 3. Navigate to fresh Details screen
-                                    navController.navigate(Routes.details(propertyId))
-                                } else {
-                                    // 1. Always remove the Add Form itself
-                                    navController.popBackStack()
-                                    // 2. If the screen underneath was an old MyListings screen, remove it so the new one fetches fresh data
-                                    if (navController.currentBackStackEntry?.destination?.route == Routes.MY_LISTINGS) {
-                                        navController.popBackStack()
-                                    }
-                                    // 3. Navigate to fresh MyListings screen
+                            viewModel.submit {
+                                // 1. Always dismiss the form screen
+                                navController.popBackStack()
+
+                                // 2. If creating a new listing from Profile, navigate to My Listings
+                                if (!state.isEditMode && navController.currentBackStackEntry?.destination?.route != Routes.MY_LISTINGS) {
                                     navController.navigate(Routes.MY_LISTINGS)
                                 }
                             }
@@ -536,12 +532,6 @@ fun PropertyFormScreen(navController: NavController) {
                         enabled = !state.submitLoading,
                         modifier = Modifier.weight(1f)
                     ) {
-                        val buttonText = when {
-                            state.submitLoading && state.isEditMode -> "Saving..."
-                            state.submitLoading -> "Posting..."
-                            state.isEditMode -> "Save Changes"
-                            else -> "Post Property"
-                        }
                         Text(buttonText)
                     }
                 }

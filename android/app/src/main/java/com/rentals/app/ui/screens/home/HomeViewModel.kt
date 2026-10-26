@@ -27,6 +27,12 @@ class HomeViewModel : ViewModel() {
 
     init {
         loadProperties()
+
+        viewModelScope.launch {
+            PropertyRepository.propertyUpdates.collect {
+                loadProperties()
+            }
+        }
     }
 
     fun loadProperties() {

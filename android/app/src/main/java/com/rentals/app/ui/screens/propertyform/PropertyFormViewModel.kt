@@ -173,10 +173,11 @@ class PropertyFormViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
         }
     }
 
-    fun submit(onSuccess: (isEdit: Boolean, propertyId: String?) -> Unit) {
+    fun submit(onSuccess: () -> Unit) {
         val s = _state.value
         val f = s.form
 
+        // Input Validation
         if (!f.isComplete) {
             _state.update { it.copy(submitError = "Please fill out all required fields with valid numbers.") }
             return
@@ -205,7 +206,7 @@ class PropertyFormViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                         newPhotos = s.newPhotos
                     )
                     _state.update { it.copy(submitLoading = false) }
-                    onSuccess(true, s.propertyId)
+                    onSuccess()   // When 100% finished, invokes callback
                 } else {
                     PropertyRepository.createProperty(
                         form = s.form,
@@ -213,7 +214,7 @@ class PropertyFormViewModel(savedStateHandle: SavedStateHandle) : ViewModel() {
                         newPhotos = s.newPhotos
                     )
                     _state.update { it.copy(submitLoading = false) }
-                    onSuccess(false, null)
+                    onSuccess()
                 }
             } catch (e: Exception) {
                 val fallback = if (s.isEditMode) {

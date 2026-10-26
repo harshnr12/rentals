@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.rentals.app.ui.navigation.Routes
+import com.rentals.app.ui.navigation.navigateHomeAfterAuth
 
 
 // Replicates Login.jsx with email & password inputs, error banner,
@@ -115,10 +116,7 @@ fun LoginScreen(
                 Button(
                     onClick = {
                         viewModel.login(email, password) {
-                            navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.HOME) { inclusive = false }
-                                launchSingleTop = true
-                            }
+                            navController.navigateHomeAfterAuth()
                         }
                     },
                     enabled = !authState.loading && email.isNotBlank() && password.isNotBlank(),

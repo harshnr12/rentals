@@ -13,10 +13,16 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 
-// No state here, only property calls. Functions throw on failure;
-// the ViewModels wrap them in apiCall { } and show the message.
+// Stateless repository for property API calls.
+// Broadcasts mutations via propertyUpdates so active ViewModels can refresh.
 object PropertyRepository {
+
+    // Broadcasts an event whenever property data is mutated
+    private val _propertyUpdates = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val propertyUpdates = _propertyUpdates.asSharedFlow()
 
     // Retrofit skips null values, so empty text and false are turned into null here
     suspend fun getProperties(filters: SearchFilters = SearchFilters()): List<Property> =
@@ -54,6 +60,7 @@ object PropertyRepository {
 
     suspend fun deleteProperty(id: String) {
         ApiClient.service.deleteProperty(id)
+        _propertyUpdates.tryEmit(Unit)
     }
 
     suspend fun createProperty(
@@ -62,6 +69,7 @@ object PropertyRepository {
         newPhotos: List<Uri>
     ) {
         ApiClient.service.createProperty(buildRequest(form, existingPhotos, newPhotos))
+        _propertyUpdates.tryEmit(Unit)
     }
 
     suspend fun updateProperty(
@@ -71,6 +79,7 @@ object PropertyRepository {
         newPhotos: List<Uri>
     ) {
         ApiClient.service.updateProperty(id, buildRequest(form, existingPhotos, newPhotos))
+        _propertyUpdates.tryEmit(Unit)
     }
 
     // Two steps like the web app: upload new photos first, then send the JSON

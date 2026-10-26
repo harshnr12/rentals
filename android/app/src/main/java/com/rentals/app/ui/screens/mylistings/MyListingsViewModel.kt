@@ -24,6 +24,12 @@ class MyListingsViewModel : ViewModel() {
 
     init {
         loadMyListings()
+
+        viewModelScope.launch {
+            PropertyRepository.propertyUpdates.collect {
+                loadMyListings()
+            }
+        }
     }
 
     fun loadMyListings() {

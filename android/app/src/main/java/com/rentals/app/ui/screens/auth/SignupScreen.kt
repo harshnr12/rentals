@@ -34,6 +34,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.rentals.app.ui.navigation.Routes
+import com.rentals.app.ui.navigation.navigateHomeAfterAuth
 
 
 // Replicates Signup.jsx with Full Name, Email,
@@ -136,10 +137,7 @@ fun SignupScreen(
                 Button(
                     onClick = {
                         viewModel.signup(name, email, password, phone) {
-                            navController.navigate(Routes.HOME) {
-                                popUpTo(Routes.HOME) { inclusive = false }
-                                launchSingleTop = true
-                            }
+                            navController.navigateHomeAfterAuth()
                         }
                     },
                     enabled = !authState.loading &&

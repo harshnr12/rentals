@@ -26,10 +26,19 @@ object Routes {
     fun editProperty(id: String): String = "edit_property/$id"
 }
 
-// Clears entire backstack back to Home (used on Login, Signup, Logout)
+// Clears entire backstack back to Home (used on Logout)
 fun NavController.navigateHomeAndClearStack() {
     navigate(Routes.HOME) {
         popUpTo(graph.findStartDestination().id) { inclusive = true }
         launchSingleTop = true
     }
 }
+
+// Pops login/signup screens back to Home (used on Login/Signup)
+fun NavController.navigateHomeAfterAuth() {
+    navigate(Routes.HOME) {
+        popUpTo(Routes.HOME) { inclusive = false }
+        launchSingleTop = true
+    }
+}
+
