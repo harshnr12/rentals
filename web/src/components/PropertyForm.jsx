@@ -337,7 +337,9 @@ function PropertyForm({ title, subtitle, initialData, configData, onSubmit, load
                             type="submit"
                             className="btn-submit"
                             disabled={loading}>
-                            {loading ? 'Saving...' : 'Save Property'}
+                            {loading
+                                ? (initialData?.locality ? 'Saving...' : 'Posting...')
+                                : (initialData?.locality ? 'Save Changes' : 'Post Property')}
                         </button>
                     </div>
                 </form>
