@@ -27,6 +27,8 @@ google-services.json
 **/dist-ssr/
 *.local
 
+# Runtime-uploaded property photos
+/backend/public/images/user_*
 
 # ==============================================================================
 # Monorepo Sub-projects: Android Native Client (rentals/android)
