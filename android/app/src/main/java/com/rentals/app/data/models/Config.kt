@@ -18,7 +18,30 @@ data class City(
     val name: String
 )
 
+data class FieldRule(
+    val type: String? = null,
+    val required: Boolean = false,
+    val min: Int? = null,
+    val default: Boolean? = null
+)
+
 data class FieldValidation(
+    val cityId: FieldRule? = null,
+    val locality: FieldRule? = null,
+    val rent: FieldRule? = null,
+    val deposit: FieldRule? = null,
+    val carpetAreaSqft: FieldRule? = null,
+    val bedrooms: FieldRule? = null,
+    val bathrooms: FieldRule? = null,
+    val totalFloors: FieldRule? = null,
+    val floorNo: FieldRule? = null,
+    val furnishing: FieldRule? = null,
+    val propertyType: FieldRule? = null,
+    val hasParking: FieldRule? = null,
+    val hasLift: FieldRule? = null,
+    val allowSingleMale: FieldRule? = null,
+    val allowSingleFemale: FieldRule? = null,
+    val allowFamily: FieldRule? = null,
     val photos: PhotoRules
 )
 

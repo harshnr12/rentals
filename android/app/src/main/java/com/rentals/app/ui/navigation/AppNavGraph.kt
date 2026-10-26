@@ -30,6 +30,8 @@ import com.rentals.app.ui.screens.profile.ProfileScreen
 import com.rentals.app.ui.screens.contacted.ContactedScreen
 import com.rentals.app.ui.screens.favorites.FavoritesScreen
 import com.rentals.app.ui.screens.mylistings.MyListingsScreen
+import com.rentals.app.ui.screens.propertyform.PropertyFormScreen
+
 
 @Composable
 fun AppNavGraph() {
@@ -85,8 +87,8 @@ fun AppNavGraph() {
             composable(Routes.CONTACTED) { ContactedScreen(navController) }
             composable(Routes.MY_LISTINGS) { MyListingsScreen(navController) }
 
-            composable(Routes.ADD_PROPERTY) { Placeholder("Add Property") }
-            composable(Routes.EDIT_PROPERTY) { Placeholder("Edit Property") }
+            composable(Routes.ADD_PROPERTY) { PropertyFormScreen(navController) }
+            composable(Routes.EDIT_PROPERTY) { PropertyFormScreen(navController) }
 
             composable(Routes.DETAILS) { Placeholder("Details") }
         }
