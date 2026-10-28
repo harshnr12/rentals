@@ -93,7 +93,7 @@ function PropertyCard({ property, cityName }) {
                 </div>
 
                 <div className="price">
-                    ₹{property.rent} <span>/ mo</span>
+                    ₹{property.rent} <span>/ month</span>
                 </div>
             </div>
         </Link>

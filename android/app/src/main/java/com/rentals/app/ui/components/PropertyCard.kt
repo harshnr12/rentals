@@ -183,7 +183,7 @@ fun PropertyCard(
                     color = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = " / mo",
+                    text = " / month",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
