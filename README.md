@@ -313,48 +313,72 @@ node scripts/seed.js
 
 Gradle reads `API_BASE_URL` from `android/local.properties` during configuration and injects it into `BuildConfig.API_BASE_URL` at compile time.
 
-Create or update `android/local.properties`:
+Create or update `android/local.properties` based on your chosen testing environment:
 
 ```properties
 # Path to Android SDK
 sdk.dir=/home/your_username/Android/Sdk
 
-# Scenario A: Physical Device via Mobile Hotspot (Laptop connected to Phone Hotspot)
-# Use your laptop's assigned IP on the hotspot subnet:
-API_BASE_URL=http://192.168.43.150:8000/api/v1/
+# --------------------------------------------------------------------------
+# API Base URL Configurations (Choose ONE scenario)
+# --------------------------------------------------------------------------
 
-# Scenario B: Physical Device via Local Wi-Fi (Both devices on same router)
-# Use your laptop's local LAN IP:
+# Option A: Physical Device via USB Cable (Recommended - zero network configuration)
+# Requires running `adb reverse` before launch (see Section 7)
+API_BASE_URL=http://127.0.0.1:8000/api/v1/
+
+# Option B: Android Studio Emulator
+# 10.0.2.2 is the emulator's alias pointing to the host machine's loopback
+API_BASE_URL=http://10.0.2.2:8000/api/v1/
+
+# Option C: Physical Device via Shared Wi-Fi (Laptop & Phone on same router)
+# Replace with your host machine's local IP (find via `hostname -I`):
 # API_BASE_URL=http://192.168.1.45:8000/api/v1/
 
-# Scenario C: Android Studio Emulator
-# 10.0.2.2 is the emulator's alias pointing to host machine localhost:
-# API_BASE_URL=http://10.0.2.2:8000/api/v1/
+# Option D: Physical Device via Hotspot
+# If Laptop hosts the hotspot (Debian default gateway):
+# API_BASE_URL=http://10.42.0.1:8000/api/v1/
+# If Phone hosts the hotspot (check assigned IP subnet):
+# API_BASE_URL=http://192.168.43.1:8000/api/v1/
 ```
 
 ---
 
 **7. Run the Applications**
 
-**Terminal 1 (Backend API):**
+#### Step 1: Start Backend API
 ```bash
 cd backend
+npm install
 npm start
 ```
+The server will start listening on port `8000`.
 
-**Terminal 2 (Web Client):**
+#### Step 2: Start Web Client (Optional)
 ```bash
 cd web
+npm install
 npm run dev
 ```
-
 The web application will be accessible at `http://localhost:5173`.
 
-**Android Client:**
-With USB debugging enabled on your physical device or with an emulator running:
-```bash
-cd android
-./gradlew installDebug
-```
+#### Step 3: Launch Android Client
+
+1. **Prepare your connection (based on your selection in Section 6):**
+   * **Option A (USB Cable):** Plug in your phone with USB Debugging enabled, then map the port:
+     ```bash
+     adb reverse tcp:8000 tcp:8000
+     ```
+   * **Option B (Emulator):** Launch your virtual device from Android Studio.
+   * **Option C (Shared Wi-Fi):** Connect both laptop and phone to the same Wi-Fi router.
+   * **Option D (Hotspot):** Connect phone to laptop hotspot (or vice versa).
+
+2. **Install and run:**
+   ```bash
+   cd android
+   ./gradlew installDebug
+   ```
+
+   *(Alternative: If installing manually without ADB, run `./gradlew assembleDebug` and transfer the generated APK from `app/build/outputs/apk/debug/`).*
 
 </details>
