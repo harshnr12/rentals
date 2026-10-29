@@ -15,6 +15,28 @@ The architecture prioritizes *strict separation of concerns*, *reactive state sy
 
 ---
 
+## Demo & Key Interfaces
+
+### Real-Time Cross-Client Synchronization
+Live demonstration of optimistic mutation handling, backend validation, and re-fetch persistence across native Android and web clients:
+
+<p align="center">
+  <img src="assets/realtime-sync-demo.webp" width="100%" alt="Real-Time Cross-Client State Synchronization" />
+</p>
+
+> **Architecture Flow:** Authenticated property owner updates rent on Native Android (Jetpack Compose). The Express/PostgreSQL API processes the mutation and updates the record. Reloading the unauthenticated Web client immediately reflects the persisted state.
+
+---
+
+### Core Platform Capabilities
+
+| Multi-Parametric Filter Engine                                                               | Sliding-Window Rate Limiting                                                                                | Authenticated Owner Dashboard                                                         |
+| :------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| <img src="assets/screenshots/search_filters.png" width="290" alt="Dynamic Search Filters" /> | <img src="assets/screenshots/rate-limited-contact.png" width="290" alt="Rate-Limited Contact Protection" /> | <img src="assets/screenshots/owner-listings.png" width="290" alt="Owner Dashboard" /> |
+| Dynamic query parameters filtering by city, locality, bedrooms, and price bounds             | Server-enforced anti-scraping quota lock with real-time countdown reset                                     | Role-Based Access Control (RBAC) isolating owner listing management                   |
+
+---
+
 ## Architecture Overview (Android)
 
 The native Android client is built on **Unidirectional Data Flow (UDF)** and the **MVVM** pattern. UI composables are strictly decoupled from network operations and database calls through lifecycle-aware Kotlin Flows and singleton domain repositories.
